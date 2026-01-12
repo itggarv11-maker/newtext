@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { SmartSummary } from '../../types';
 import Card from '../common/Card';
 import MathRenderer from '../common/MathRenderer';
 import { LightBulbIcon, BookOpenIcon, SparklesIcon, HeartIcon } from '../icons';
-import { motion } from 'https://esm.sh/framer-motion';
+import { motion } from 'framer-motion';
 
 interface SmartSummaryComponentProps {
     summary: SmartSummary;

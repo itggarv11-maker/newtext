@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { NavLink, Link, useNavigate } from 'https://esm.sh/react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../common/Button';
 import { 
@@ -8,7 +8,7 @@ import {
     RocketLaunchIcon, DocumentDuplicateIcon, 
     GavelIcon, BeakerIcon, MenuIcon, XMarkIcon
 } from '../icons';
-import { motion, AnimatePresence } from 'https://esm.sh/framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Header: React.FC = () => {
   const { currentUser, logout, tokens } = useAuth();

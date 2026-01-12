@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { HashRouter, Route, Routes } from 'https://esm.sh/react-router-dom';
+import { HashRouter, Route, Routes } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import HomePage from './pages/HomePage';
@@ -47,7 +48,6 @@ const AppContent: React.FC = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           
-          {/* Protected Routes - Note: container constraints added inside pages where needed */}
           <Route path="/app" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/new-session" element={<ProtectedRoute><NewSessionPage /></ProtectedRoute>} />
           <Route path="/question-paper" element={<ProtectedRoute><QuestionPaperPage /></ProtectedRoute>} />

@@ -1,5 +1,5 @@
 
-import type { User } from 'https://esm.sh/firebase/auth';
+import type { User } from 'firebase/auth';
 
 export type FirebaseUser = User;
 
@@ -22,7 +22,6 @@ export type ClassLevel =
 
 export type AssessmentMode = 'speak' | 'type' | 'upload';
 
-// --- Diagram Specification (Mandatory for Maths/Science) ---
 export interface DiagramSpec {
   type: 'geometry' | 'graph' | 'shape' | 'circle' | 'triangle';
   width: number;
@@ -34,7 +33,6 @@ export interface DiagramSpec {
   labels: { pos: [number, number]; text: string; color?: string }[];
 }
 
-// --- Career Architect ---
 export interface CareerRoadmap {
   title: string;
   vision: string;
@@ -48,7 +46,6 @@ export interface CareerRoadmap {
   jobOccupations: { title: string; scope: string; salaryRange: string }[];
 }
 
-// --- Revision Engine ---
 export interface RevisionCurriculum {
   diagnosis: string;
   weakNodes: string[];
@@ -72,7 +69,6 @@ export interface QuizQuestion {
   correctAnswer?: string;
   explanation: string;
   diagram_spec?: DiagramSpec;
-  // Added for diagnostic quiz results
   userAnswer?: string | null;
   isCorrect?: boolean;
 }
@@ -100,8 +96,6 @@ export interface WorkHistoryItem {
   data: any;
   subject?: string;
 }
-
-// --- Added missing types for various features ---
 
 export type ChatMessage = {
   role: 'user' | 'model' | 'system';

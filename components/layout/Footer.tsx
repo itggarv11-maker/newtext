@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'https://esm.sh/react-router-dom';
+import { Link } from 'react-router-dom';
 import { HeartIcon, AcademicCapIcon, RocketLaunchIcon } from '../icons';
 
 const Footer: React.FC = () => {

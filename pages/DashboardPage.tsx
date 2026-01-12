@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { useNavigate, Link } from 'https://esm.sh/react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useContent } from '../contexts/ContentContext';
 import { useAuth } from '../contexts/AuthContext';
-import { motion, AnimatePresence } from 'https://esm.sh/framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     AcademicCapIcon, BrainCircuitIcon, ChatBubbleIcon,
     DocumentDuplicateIcon, LightBulbIcon, RectangleStackIcon,
@@ -258,7 +258,7 @@ const DashboardPage: React.FC = () => {
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10 border-b border-white/5 pb-12 md:pb-20 pt-10">
                         <div className="w-full">
                             <div className="flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-8 mb-4 md:mb-8">
-                                <div className="p-4 md:p-6 bg-violet-600 rounded-2xl md:rounded-[2.5rem] shadow-[0_0_80px_rgba(139,92,246,0.5)] border border-violet-400/30">
+                                <div className="p-4 md:p-6 bg-violet-600 rounded-2xl md:rounded-[2.5rem] shadow-[0_0_159px_rgba(139,92,246,0.5)] border border-violet-400/30">
                                     <AcademicCapIcon className="w-8 h-8 md:w-12 md:h-12 text-white" />
                                 </div>
                                 <div>
@@ -359,7 +359,7 @@ const DashboardPage: React.FC = () => {
                                                             <div className="text-3xl md:text-6xl font-black text-white tracking-tighter drop-shadow-2xl leading-tight italic">
                                                                 <MathRenderer text={resultData.finalAnswer || ''} />
                                                             </div>
-                                                            <div className="mt-8 md:mt-12 text-xs md:text-sm text-slate-500 font-medium italic border-t border-white/10 pt-6 md:pt-8 max-w-sm mx-auto">
+                                                            <div className="mt-8 mt-12 text-xs md:text-sm text-slate-500 font-medium italic border-t border-white/10 pt-6 md:pt-8 max-w-sm mx-auto">
                                                                 <MathRenderer text={resultData.recap} isChat />
                                                             </div>
                                                         </div>

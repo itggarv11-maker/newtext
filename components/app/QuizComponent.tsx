@@ -1,12 +1,11 @@
-
 import React, { useState, useRef } from 'react';
 import { QuizQuestion, AssessmentMode } from '../../types';
 import Button from '../common/Button';
 import Spinner from '../common/Spinner';
-import Card from '../components/common/Card';
+import Card from '../common/Card';
 import { MicrophoneIcon, UploadIcon, PencilSquareIcon, CheckCircleIcon, XCircleIcon, SparklesIcon } from '../icons';
 import MathRenderer from '../common/MathRenderer';
-import { motion, AnimatePresence } from 'https://esm.sh/framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import DiagramRenderer from './DiagramRenderer';
 
 interface QuizProps {

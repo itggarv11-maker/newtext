@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import {
   onAuthStateChanged,
@@ -6,7 +7,7 @@ import {
   signInWithPopup,
   signOut,
   UserCredential
-} from 'https://esm.sh/firebase/auth';
+} from 'firebase/auth';
 import { auth as firebaseAuth, googleProvider } from '../services/firebase';
 import { FirebaseUser } from '../types';
 import * as userService from '../services/userService';

@@ -13,13 +13,10 @@ import {
     limit,
     getDocs,
     deleteDoc
-} from 'https://esm.sh/firebase/firestore';
+} from 'firebase/firestore';
 
 const getUser = () => auth?.currentUser;
 
-/**
- * Cleanup function to ensure Firestore only receives plain objects.
- */
 function cleanForFirestore(obj: any): any {
   if (obj === null || obj === undefined) return null;
   if (obj instanceof Blob) return "[Media/Binary Data]"; 
@@ -36,9 +33,6 @@ function cleanForFirestore(obj: any): any {
   return newObj;
 }
 
-/**
- * Pillar 1: Identity Profile
- */
 export const saveUserProfile = async (userId: string, data: { name: string; classLevel: string }) => {
     if (!db) return;
     const profileRef = doc(db, 'users', userId);
@@ -56,10 +50,6 @@ export const getUserProfile = async (userId: string) => {
     return snap.exists() ? snap.data() : null;
 };
 
-/**
- * Pillar 2: Activity Vault
- * Centralized save function for all tools.
- */
 export const saveActivity = async (
     type: string, 
     topic: string, 
@@ -96,9 +86,6 @@ export const saveActivity = async (
     }
 };
 
-/**
- * Updates an existing activity (Crucial for live sessions like Chat/Viva)
- */
 export const updateActivity = async (activityId: string, data: any) => {
     if (!db) return;
     const user = getUser();
@@ -114,9 +101,6 @@ export const updateActivity = async (activityId: string, data: any) => {
     }
 };
 
-/**
- * Pillar 3: Personal Intelligence
- */
 const updatePersonalIntelligence = async (userId: string, analysis: any) => {
     if (!db || !analysis) return;
     const personalRef = doc(db, 'users', userId, 'personal', 'metrics');

@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate, Link } from 'https://esm.sh/react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Subject, ClassLevel } from '../types';
 import { SUBJECTS, CLASS_LEVELS } from '../constants';
 import * as geminiService from '../services/geminiService';
@@ -8,17 +8,16 @@ import Spinner from '../components/common/Spinner';
 import Card from '../components/common/Card';
 import { 
     UploadIcon, YouTubeIcon, ClipboardIcon, SearchIcon, 
-    DocumentDuplicateIcon, XMarkIcon, SparklesIcon, 
-    BookOpenIcon, ScaleIcon, AcademicCapIcon, 
-    CameraIcon, SpeakerWaveIcon, VideoCameraIcon,
-    BrainCircuitIcon
+    DocumentDuplicateIcon, BookOpenIcon, SparklesIcon, 
+    AcademicCapIcon
 } from '../components/icons';
 import * as pdfjs from 'pdfjs-dist';
 import * as mammoth from 'mammoth';
 import { useContent, SessionIntent } from '../contexts/ContentContext';
-import { motion, AnimatePresence } from 'https://esm.sh/framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
-pdfjs.GlobalWorkerOptions.workerSrc = `https://esm.sh/pdfjs-dist@4.5.136/build/pdf.worker.mjs`;
+// Using version-matched CDN for stable worker resolution in Vite environments
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 type ContentSource = 'paste' | 'file' | 'youtube' | 'search';
 
@@ -32,7 +31,7 @@ const NewSessionPage: React.FC = () => {
     const [contentSource, setContentSource] = useState<ContentSource>('paste');
     
     const [pastedText, setPastedText] = useState('');
-    const [mediaUrl, setMediaUrl] = useState(''); // Unified link input
+    const [mediaUrl, setMediaUrl] = useState(''); 
     const [chapterInfo, setChapterInfo] = useState('');
     const [chapterDetails, setChapterDetails] = useState('');
     
@@ -114,7 +113,6 @@ const NewSessionPage: React.FC = () => {
     return (
         <div className="max-w-[1600px] mx-auto p-4 md:p-12 pb-40">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
-                {/* Side Controls */}
                 <div className="lg:col-span-4 space-y-6 md:space-y-8">
                     <Card variant="dark" className="!p-6 md:!p-10 border-white/5 bg-slate-900/70 backdrop-blur-3xl shadow-2xl !rounded-3xl md:!rounded-[3rem]">
                         <h2 className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] mb-8 md:mb-10">01. Astra Target</h2>
@@ -161,11 +159,10 @@ const NewSessionPage: React.FC = () => {
                     </Card>
                 </div>
 
-                {/* Main Data Intake */}
                 <div className="lg:col-span-8">
                     <Card variant="dark" className="!p-6 md:!p-12 min-h-[500px] md:min-h-[700px] flex flex-col bg-slate-900/40 relative overflow-hidden !rounded-3xl md:!rounded-[4rem] shadow-[0_40px_150px_rgba(0,0,0,0.8)]">
                         <div className="absolute top-0 right-0 p-10 md:p-20 opacity-[0.02] pointer-events-none">
-                            <BrainCircuitIcon className="w-48 h-48 md:w-96 md:h-96" />
+                            <DocumentDuplicateIcon className="w-48 h-48 md:w-96 md:h-96" />
                         </div>
                         
                         <div className="flex items-center gap-4 md:gap-6 mb-8 md:mb-12 border-b border-white/5 pb-6 md:pb-10">
@@ -226,20 +223,18 @@ const NewSessionPage: React.FC = () => {
                                     <motion.div key="youtube" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="flex-grow flex flex-col items-center justify-center p-4 md:p-12 space-y-8 md:space-y-12">
                                         <div className="flex gap-4 md:gap-10">
                                             <div className="p-5 md:p-8 bg-red-600/10 rounded-2xl border border-red-500/20 shadow-2xl"><YouTubeIcon className="w-10 h-10 md:w-16 md:h-16 text-red-500" /></div>
-                                            <div className="p-5 md:p-8 bg-cyan-600/10 rounded-2xl border border-cyan-500/20 shadow-2xl"><VideoCameraIcon className="w-10 h-10 md:w-16 md:h-16 text-cyan-500" /></div>
-                                            <div className="p-5 md:p-8 bg-violet-600/10 rounded-2xl border border-violet-500/20 shadow-2xl"><SpeakerWaveIcon className="w-10 h-10 md:w-16 md:h-16 text-violet-500" /></div>
                                         </div>
                                         <div className="w-full max-w-3xl space-y-4 md:space-y-6 text-center">
                                             <div>
                                                 <p className="text-[10px] md:text-[11px] font-black text-slate-500 uppercase tracking-[0.4em] md:tracking-[0.5em] mb-2">Universal Media Intake</p>
-                                                <h3 className="text-lg md:text-xl font-black text-white uppercase italic">Input YouTube or Media URL</h3>
+                                                <h3 className="text-lg md:text-xl font-black text-white uppercase italic">Input YouTube URL</h3>
                                             </div>
                                             <div className="relative group">
                                                 <div className="absolute inset-0 bg-violet-600 blur-[30px] md:blur-[40px] opacity-10 group-hover:opacity-25 transition-opacity"></div>
                                                 <input 
                                                     value={mediaUrl} 
                                                     onChange={e => setMediaUrl(e.target.value)} 
-                                                    placeholder="> https://link..." 
+                                                    placeholder="> https://youtube.com/watch?v=..." 
                                                     className="w-full bg-slate-950 border border-white/10 p-6 md:p-10 rounded-2xl md:rounded-[2.5rem] text-white font-mono-code text-base md:text-xl outline-none focus:border-violet-500 relative z-10 shadow-inner placeholder:text-slate-800"
                                                 />
                                             </div>
