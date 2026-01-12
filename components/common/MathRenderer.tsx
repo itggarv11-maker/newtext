@@ -1,19 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import ReactMarkdown from 'https://esm.sh/react-markdown@9.0.1';
-import remarkGfm from 'https://esm.sh/remark-gfm@4.0.0';
+import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface MathRendererProps {
-  text?: string | null;
+  text?: any;
   className?: string;
   isChat?: boolean;
 }
 
-/**
- * Precision Content Processor
- * Optimized for Mobile Responsiveness.
- */
 const MathRenderer: React.FC<MathRendererProps> = ({ text, className = "", isChat = false }) => {
-    const safeText = (text ?? "").replace(/\$/g, ""); // Stripping residual $ signs
+    // FIX: String conversion guard to prevent Error #31
+    const getSafeText = (input: any): string => {
+        if (input === null || input === undefined) return "";
+        if (typeof input === 'string') return input.replace(/\$/g, "");
+        if (typeof input === 'object') {
+            // Attempt to extract text from common AI object structures or stringify
+            return (input.text || input.message || JSON.stringify(input)).replace(/\$/g, "");
+        }
+        return String(input).replace(/\$/g, "");
+    };
+
+    const safeText = getSafeText(text);
 
     if (!safeText) return null;
 

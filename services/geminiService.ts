@@ -283,7 +283,8 @@ export const createLiveDoubtsSession = (topic: string, level: string): Chat => {
 };
 
 export const sendAudioForTranscriptionAndResponse = async (chat: Chat, audioPart: any) => {
-    const response = await chat.sendMessage({ message: { parts: [audioPart, { text: "Answer doubt. NO DOLLAR SIGNS." }] } });
+    // Fixed: sendMessage parameter should be a parts array directly for multi-part messages
+    const response = await chat.sendMessage({ message: [audioPart, { text: "Answer doubt. NO DOLLAR SIGNS." }] });
     return { transcription: "Audio processed.", response: response.text || "" };
 };
 
@@ -331,7 +332,8 @@ export const sendDebateArgument = async (chat: Chat, arg: string) => {
 };
 
 export const getDebateResponseToAudio = async (chat: Chat, audioPart: any) => {
-    const res = await chat.sendMessage({ message: { parts: [audioPart, { text: "Rebut my argument. NO DOLLAR SIGNS." }] } });
+    // Fixed: sendMessage parameter should be a parts array directly for multi-part messages
+    const res = await chat.sendMessage({ message: [audioPart, { text: "Rebut my argument. NO DOLLAR SIGNS." }] });
     return { transcription: "Audio received.", rebuttal: res.text || "" };
 };
 
