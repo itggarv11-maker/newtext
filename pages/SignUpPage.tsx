@@ -1,12 +1,11 @@
 
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'https://esm.sh/react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
 import { useAuth } from '../contexts/AuthContext';
 import Spinner from '../components/common/Spinner';
-/* FIX: Added missing motion import and removed non-existent ZapIcon */
-import { motion } from 'https://esm.sh/framer-motion';
+import { motion } from 'framer-motion';
 import { CheckBadgeIcon } from '../components/icons';
 
 const SignUpPage: React.FC = () => {
@@ -56,7 +55,6 @@ const SignUpPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-slate-950 relative overflow-hidden">
-      {/* Encryption Background */}
       <div className="absolute inset-0 opacity-[0.03] font-mono text-[8px] pointer-events-none select-none overflow-hidden leading-tight">
           {Array(100).fill('STUBRO_AI_ENCRYPTED_VAULT_NODE_778_').join(' ')}
       </div>
