@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Route, Routes, Navigate } from 'react-router-dom';
+import { HashRouter, Route, Routes } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import HomePage from './pages/HomePage';
@@ -42,12 +42,14 @@ const AppContent: React.FC = () => {
       <Header />
       <main className="flex-grow w-full py-20 px-0 md:px-0">
         <Routes>
-          {/* Default to App HQ */}
+          {/* Default directly to Dashboard HQ */}
           <Route path="/" element={<DashboardPage />} />
           <Route path="/app" element={<DashboardPage />} />
           
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignUpPage />} />
+          {/* Legacy/Optional pages */}
+          <Route path="/landing" element={<HomePage />} />
+          <Route path="/login" element={<DashboardPage />} /> {/* Redirect login to app */}
+          <Route path="/signup" element={<DashboardPage />} />
           
           <Route path="/new-session" element={<NewSessionPage />} />
           <Route path="/question-paper" element={<QuestionPaperPage />} />

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { FirebaseUser } from '../types';
 
 interface AuthContextType {
@@ -21,25 +21,26 @@ export const useAuth = (): AuthContextType => {
   return context;
 };
 
-// Hardcoded user for instant access
+// Hardcoded user for instant access across the entire app
 const DUMMY_USER: any = {
-    uid: "omega_user_dev",
+    uid: "omega_user_dev_bypass",
     email: "operator@stubro.ai",
     displayName: "ASTRA OPERATOR"
 };
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(DUMMY_USER);
-  const [userName, setUserName] = useState<string | null>("ASTRA OPERATOR");
-  const [isPremium, setIsPremium] = useState<boolean>(true);
-  const [loading, setLoading] = useState(false);
-  const [tokens, setTokens] = useState<number | null>(999999);
+  // Always authenticated, never loading
+  const [currentUser] = useState<FirebaseUser | null>(DUMMY_USER);
+  const [userName] = useState<string | null>("ASTRA OPERATOR");
+  const [isPremium] = useState<boolean>(true);
+  const [loading] = useState(false);
+  const [tokens] = useState<number | null>(999999);
 
   const signup = async () => ({ user: DUMMY_USER });
   const login = async () => ({ user: DUMMY_USER });
   const loginWithGoogle = async () => ({ user: DUMMY_USER });
   const logout = async () => {
-      // In bypass mode, logout does nothing or we could refresh
+      console.log("Logout bypassed in dev mode");
       window.location.href = '/';
   };
 
