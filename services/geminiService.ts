@@ -8,7 +8,18 @@ import {
     QuizDifficulty, Flashcard, MindMapNode
 } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Lazy-initialize the AI client to prevent top-level crashes
+let aiInstance: GoogleGenAI | null = null;
+const getAI = () => {
+    if (!aiInstance) {
+        const key = process.env.API_KEY;
+        if (!key || key === "undefined") {
+            throw new Error("Gemini API Key is missing. Please check your environment variables.");
+        }
+        aiInstance = new GoogleGenAI({ apiKey: key });
+    }
+    return aiInstance;
+};
 
 const MATHS_SOLVER_PROMPT = `You are STUBRO MATHS BRAHMASTRA v8.0.
 ABSOLUTE PEDAGOGICAL COMMANDS:
@@ -20,6 +31,7 @@ ABSOLUTE PEDAGOGICAL COMMANDS:
 6. NO ALL CAPS.`;
 
 export const solveMathsBrahmastra = async (problem: string, level: ClassLevel, imagePart?: any): Promise<MathsSolution> => {
+    const ai = getAI();
     const contents = imagePart 
         ? { parts: [imagePart, { text: `Grade Level: ${level}. Problem Context/Text: ${problem}` }] }
         : `Grade Level: ${level}. Problem: ${problem}`;
@@ -109,6 +121,7 @@ export const solveMathsBrahmastra = async (problem: string, level: ClassLevel, i
 };
 
 export const startMathDoubtChat = (solutionContext: MathsSolution): Chat => {
+    const ai = getAI();
     const instruction = `You are the STUBRO DOUBT SOLVER. 
     You have access to the solution: ${JSON.stringify(solutionContext)}.
     RULES:
@@ -123,6 +136,7 @@ export const startMathDoubtChat = (solutionContext: MathsSolution): Chat => {
 };
 
 export const generateSmartSummary = async (subject: Subject, classLevel: ClassLevel, sourceText: string): Promise<SmartSummary> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
         contents: `Subject: ${subject}. Level: ${classLevel}. Context: ${sourceText}`,
@@ -145,6 +159,7 @@ export const generateSmartSummary = async (subject: Subject, classLevel: ClassLe
 };
 
 export const generateQuiz = async (subject: Subject, classLevel: ClassLevel, sourceText: string, num: number = 5, difficulty: QuizDifficulty = 'Medium', typeFilter: 'mcq' | 'written' | 'both' = 'both'): Promise<QuizQuestion[]> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
         contents: `Generate ${num} questions. NO DOLLAR SIGNS. Use **Bold** and *Italics* for math/science notation. Context: ${sourceText}`,
@@ -155,6 +170,7 @@ export const generateQuiz = async (subject: Subject, classLevel: ClassLevel, sou
 };
 
 export const fetchYouTubeTranscript = async (url: string): Promise<string> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `Analyze media link: ${url}. Perform deep transcription.`,
@@ -164,6 +180,7 @@ export const fetchYouTubeTranscript = async (url: string): Promise<string> => {
 };
 
 export const fetchChapterContent = async (level: ClassLevel, subject: Subject, chapter: string, details: string): Promise<string> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `NCERT content for ${level} ${subject}, Chapter: ${chapter}. ${details}`,
@@ -173,6 +190,7 @@ export const fetchChapterContent = async (level: ClassLevel, subject: Subject, c
 };
 
 export const createChatSession = (subject: Subject, level: ClassLevel, context: string): Chat => {
+    const ai = getAI();
     return ai.chats.create({
         model: 'gemini-3-flash-preview',
         config: { systemInstruction: `Expert ${subject} tutor for ${level}. NO DOLLAR SIGNS allowed. Use **Bold** for terms.` }
@@ -180,6 +198,7 @@ export const createChatSession = (subject: Subject, level: ClassLevel, context: 
 };
 
 export const generateFlashcards = async (text: string): Promise<Flashcard[]> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `Create flashcards: ${text}. NO DOLLAR SIGNS.`,
@@ -189,6 +208,7 @@ export const generateFlashcards = async (text: string): Promise<Flashcard[]> => 
 };
 
 export const generateMindMapFromText = async (text: string, level: ClassLevel): Promise<MindMapNode> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-pro-preview',
         contents: `Mind map node structure for ${level}: ${text}. NO DOLLAR SIGNS.`,
@@ -200,6 +220,7 @@ export const generateMindMapFromText = async (text: string, level: ClassLevel): 
 export const sendMessageStream = async (chat: Chat, message: string) => chat.sendMessageStream({ message });
 
 export const generateQuestionPaper = async (text: string, num: number, type: string, diff: string, marks: number, subject: any): Promise<QuestionPaper> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-pro-preview',
         contents: `Generate board paper. NO DOLLAR SIGNS. Content: ${text}`,
@@ -209,6 +230,7 @@ export const generateQuestionPaper = async (text: string, num: number, type: str
 };
 
 export const gradeAnswerSheet = async (paper: string, images: any[]): Promise<GradedPaper> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-pro-preview',
         contents: { parts: [...images, { text: `Grade student sheet for: ${paper}. NO DOLLAR SIGNS in feedback.` }] },
@@ -218,6 +240,7 @@ export const gradeAnswerSheet = async (paper: string, images: any[]): Promise<Gr
 };
 
 export const generateVivaQuestions = async (topic: string, level: string, num: number): Promise<string[]> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `Generate exactly ${num} viva questions on the topic: ${topic} for students in ${level}. RULES: Return ONLY a JSON array of strings. NEVER return objects. NO DOLLAR SIGNS.`,
@@ -231,7 +254,6 @@ export const generateVivaQuestions = async (topic: string, level: string, num: n
     });
     try {
         const questions = JSON.parse(response.text || "[]");
-        // Ensure we always return strings to prevent Error #31
         return questions.map((q: any) => typeof q === 'string' ? q : JSON.stringify(q));
     } catch (e) {
         return ["Failed to generate questions. Reset session."];
@@ -239,6 +261,7 @@ export const generateVivaQuestions = async (topic: string, level: string, num: n
 };
 
 export const evaluateVivaAudioAnswer = async (q: string, audioPart: any) => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: { parts: [audioPart, { text: `Evaluate viva answer for: ${q}. NO DOLLAR SIGNS.` }] },
@@ -258,6 +281,7 @@ export const evaluateVivaAudioAnswer = async (q: string, audioPart: any) => {
 };
 
 export const evaluateVivaTextAnswer = async (q: string, text: string) => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `Evaluate: ${text} for ${q}. NO DOLLAR SIGNS.`,
@@ -276,6 +300,7 @@ export const evaluateVivaTextAnswer = async (q: string, text: string) => {
 };
 
 export const createLiveDoubtsSession = (topic: string, level: string): Chat => {
+    const ai = getAI();
     return ai.chats.create({
         model: 'gemini-3-flash-preview',
         config: { systemInstruction: `Tutor for ${topic}, grade ${level}. NO DOLLAR SIGNS allowed.` }
@@ -283,12 +308,12 @@ export const createLiveDoubtsSession = (topic: string, level: string): Chat => {
 };
 
 export const sendAudioForTranscriptionAndResponse = async (chat: Chat, audioPart: any) => {
-    // Fixed: sendMessage parameter should be a parts array directly for multi-part messages
     const response = await chat.sendMessage({ message: [audioPart, { text: "Answer doubt. NO DOLLAR SIGNS." }] });
     return { transcription: "Audio processed.", response: response.text || "" };
 };
 
 export const breakdownTextIntoTopics = async (text: string) => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `Break content into topics: ${text}. NO DOLLAR SIGNS.`,
@@ -298,6 +323,7 @@ export const breakdownTextIntoTopics = async (text: string) => {
 };
 
 export const generateScenesForTopic = async (content: string, lang: string, level: string): Promise<VisualExplanationScene[]> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `Create narrated scenes for: ${content}. NO DOLLAR SIGNS in narration.`,
@@ -311,6 +337,7 @@ export const generateFullChapterSummaryVideo = async (text: string, lang: string
 };
 
 export const generateDebateTopics = async (text: string): Promise<string[]> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `3 debate topics: ${text}. NO DOLLAR SIGNS.`,
@@ -320,6 +347,7 @@ export const generateDebateTopics = async (text: string): Promise<string[]> => {
 };
 
 export const startDebateSession = (topic: string): Chat => {
+    const ai = getAI();
     return ai.chats.create({
         model: 'gemini-3-pro-preview',
         config: { systemInstruction: `Debate me on: ${topic}. NO DOLLAR SIGNS allowed.` }
@@ -332,12 +360,12 @@ export const sendDebateArgument = async (chat: Chat, arg: string) => {
 };
 
 export const getDebateResponseToAudio = async (chat: Chat, audioPart: any) => {
-    // Fixed: sendMessage parameter should be a parts array directly for multi-part messages
     const res = await chat.sendMessage({ message: [audioPart, { text: "Rebut my argument. NO DOLLAR SIGNS." }] });
     return { transcription: "Audio received.", rebuttal: res.text || "" };
 };
 
 export const evaluateDebate = async (history: DebateTurn[]): Promise<DebateScorecard> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-pro-preview',
         contents: `Evaluate debate history: ${JSON.stringify(history)}. NO DOLLAR SIGNS in feedback.`,
@@ -347,6 +375,7 @@ export const evaluateDebate = async (history: DebateTurn[]): Promise<DebateScore
 };
 
 export const generateGameLevel = async (text: string): Promise<GameLevel> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-pro-preview',
         contents: `Educational RPG level for: ${text}. NO DOLLAR SIGNS.`,
@@ -356,6 +385,7 @@ export const generateGameLevel = async (text: string): Promise<GameLevel> => {
 };
 
 export const generateLabExperiment = async (sub: Subject, topic: string, safety: string): Promise<LabExperiment> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `Lab experiment for ${sub}. Topic: ${topic}. NO DOLLAR SIGNS.`,
@@ -365,6 +395,7 @@ export const generateLabExperiment = async (sub: Subject, topic: string, safety:
 };
 
 export const createHistoricalChatSession = (figure: string): Chat => {
+    const ai = getAI();
     return ai.chats.create({
         model: 'gemini-3-flash-preview',
         config: { systemInstruction: `You are ${figure}. NO DOLLAR SIGNS allowed.` }
@@ -372,6 +403,7 @@ export const createHistoricalChatSession = (figure: string): Chat => {
 };
 
 export const analyzeLiteraryText = async (text: string): Promise<LiteraryAnalysis> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-pro-preview',
         contents: `Deep analysis of: ${text}. NO DOLLAR SIGNS.`,
@@ -381,6 +413,7 @@ export const analyzeLiteraryText = async (text: string): Promise<LiteraryAnalysi
 };
 
 export const generateAnalogies = async (concept: string): Promise<Analogy[]> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `Generate 3 analogies for: ${concept}. NO DOLLAR SIGNS.`,
@@ -390,6 +423,7 @@ export const generateAnalogies = async (concept: string): Promise<Analogy[]> => 
 };
 
 export const createDilemmaChatSession = (topic: string): Chat => {
+    const ai = getAI();
     return ai.chats.create({
         model: 'gemini-3-pro-preview',
         config: { systemInstruction: `Construct dilemmas about: ${topic}. NO DOLLAR SIGNS.` }
@@ -397,6 +431,7 @@ export const createDilemmaChatSession = (topic: string): Chat => {
 };
 
 export const exploreWhatIfHistory = async (scenario: string): Promise<string> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-pro-preview',
         contents: `Analyze alternative timeline: ${scenario}. NO DOLLAR SIGNS.`
@@ -405,6 +440,7 @@ export const exploreWhatIfHistory = async (scenario: string): Promise<string> =>
 };
 
 export const predictExamPaper = async (text: string, diff: string, marks: number, sub: any): Promise<QuestionPaper> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-pro-preview',
         contents: `Predict questions for: ${text}. NO DOLLAR SIGNS.`,
@@ -414,6 +450,7 @@ export const predictExamPaper = async (text: string, diff: string, marks: number
 };
 
 export const findRealWorldApplications = async (concept: string): Promise<RealWorldApplication[]> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `Real world use-cases for: ${concept}. NO DOLLAR SIGNS.`,
@@ -423,6 +460,7 @@ export const findRealWorldApplications = async (concept: string): Promise<RealWo
 };
 
 export const generateLearningPath = async (topic: string, sub: Subject, level: string, quizResults: any): Promise<LearningPath> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-pro-preview',
         contents: `Personalized path for: ${topic}. NO DOLLAR SIGNS.`,
@@ -432,6 +470,7 @@ export const generateLearningPath = async (topic: string, sub: Subject, level: s
 };
 
 export const generateSimulationExperiment = async (text: string) => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-pro-preview',
         contents: `Simulation design from: ${text}. NO DOLLAR SIGNS.`,
@@ -441,6 +480,7 @@ export const generateSimulationExperiment = async (text: string) => {
 };
 
 export const generateCareerDivination = async (data: any): Promise<CareerRoadmap> => {
+    const ai = getAI();
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `Career path for: ${JSON.stringify(data)}. NO DOLLAR SIGNS.`,

@@ -9,13 +9,17 @@ interface MathRendererProps {
 }
 
 const MathRenderer: React.FC<MathRendererProps> = ({ text, className = "", isChat = false }) => {
-    // FIX: String conversion guard to prevent Error #31
+    /**
+     * STUBRO PRECISION GUARD:
+     * Model responses can sometimes be nested objects. We ensure only strings reach the renderer.
+     */
     const getSafeText = (input: any): string => {
         if (input === null || input === undefined) return "";
         if (typeof input === 'string') return input.replace(/\$/g, "");
         if (typeof input === 'object') {
             // Attempt to extract text from common AI object structures or stringify
-            return (input.text || input.message || JSON.stringify(input)).replace(/\$/g, "");
+            const rawText = input.text || input.message || (Array.isArray(input.parts) ? input.parts[0]?.text : null) || JSON.stringify(input);
+            return String(rawText).replace(/\$/g, "");
         }
         return String(input).replace(/\$/g, "");
     };
