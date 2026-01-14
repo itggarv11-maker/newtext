@@ -13,8 +13,10 @@ let aiInstance: GoogleGenAI | null = null;
 const getAI = () => {
     if (!aiInstance) {
         const key = process.env.API_KEY;
-        if (!key || key === "undefined") {
-            throw new Error("Gemini API Key is missing. Please check your environment variables.");
+        if (!key || key === "undefined" || key === "") {
+            console.error("CRITICAL: Gemini API Key is missing from environment variables.");
+            // We return a dummy instance that will fail gracefully later rather than crashing the whole UI module
+            return new GoogleGenAI({ apiKey: "MISSING_KEY" });
         }
         aiInstance = new GoogleGenAI({ apiKey: key });
     }

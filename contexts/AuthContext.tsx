@@ -1,18 +1,5 @@
-
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import {
-  onAuthStateChanged,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signOut,
-  UserCredential
-} from 'firebase/auth';
-import { auth as firebaseAuth, googleProvider } from '../services/firebase';
 import { FirebaseUser } from '../types';
-import * as userService from '../services/userService';
-
-const INITIAL_TOKENS = 100;
 
 interface AuthContextType {
   currentUser: FirebaseUser | null;
@@ -20,9 +7,9 @@ interface AuthContextType {
   isPremium: boolean;
   loading: boolean;
   tokens: number | null;
-  signup: (email: string, pass: string, name: string) => Promise<UserCredential>;
-  login: (email: string, pass: string) => Promise<UserCredential>;
-  loginWithGoogle: () => Promise<UserCredential>;
+  signup: (email: string, pass: string, name: string) => Promise<any>;
+  login: (email: string, pass: string) => Promise<any>;
+  loginWithGoogle: () => Promise<any>;
   logout: () => Promise<void>;
 }
 
@@ -34,81 +21,26 @@ export const useAuth = (): AuthContextType => {
   return context;
 };
 
+// Hardcoded user for instant access
+const DUMMY_USER: any = {
+    uid: "omega_user_dev",
+    email: "operator@stubro.ai",
+    displayName: "ASTRA OPERATOR"
+};
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
-  const [userName, setUserName] = useState<string | null>(null);
-  const [isPremium, setIsPremium] = useState<boolean>(false);
-  const [loading, setLoading] = useState(true);
-  const [tokens, setTokens] = useState<number | null>(null);
+  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(DUMMY_USER);
+  const [userName, setUserName] = useState<string | null>("ASTRA OPERATOR");
+  const [isPremium, setIsPremium] = useState<boolean>(true);
+  const [loading, setLoading] = useState(false);
+  const [tokens, setTokens] = useState<number | null>(999999);
 
-  useEffect(() => {
-    if (!firebaseAuth) {
-      setLoading(false);
-      return;
-    }
-    
-    const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
-      setCurrentUser(user);
-      if (user) {
-        const tokenKey = `userTokens_${user.uid}`;
-        const storedTokens = localStorage.getItem(tokenKey);
-        
-        try {
-            const profile = await userService.getUserProfile(user.uid);
-            if (profile) {
-                setUserName(profile.name);
-                setIsPremium(!!profile.isPremium);
-            } else if (user.displayName) {
-                setUserName(user.displayName);
-                await userService.saveUserProfile(user.uid, { name: user.displayName, classLevel: 'Any' });
-            }
-        } catch (e) {
-            console.error("Profile fetch failed:", e);
-        }
-
-        if (storedTokens === null) {
-          localStorage.setItem(tokenKey, String(INITIAL_TOKENS));
-          setTokens(INITIAL_TOKENS);
-        } else {
-          setTokens(parseInt(storedTokens, 10));
-        }
-      } else {
-        setTokens(null);
-        setUserName(null);
-        setIsPremium(false);
-      }
-      setLoading(false);
-    });
-
-    const handleTokenChange = (event: any) => setTokens(event.detail.newTokens);
-    window.addEventListener('tokenChange', handleTokenChange);
-
-    return () => {
-        unsubscribe();
-        window.removeEventListener('tokenChange', handleTokenChange);
-    };
-  }, []);
-
-  const signup = async (email: string, pass: string, name: string): Promise<UserCredential> => {
-    if (!firebaseAuth) throw new Error('Auth not initialized');
-    const userCredential = await createUserWithEmailAndPassword(firebaseAuth, email, pass);
-    await userService.saveUserProfile(userCredential.user.uid, { name, classLevel: 'Any' });
-    return userCredential;
-  };
-
-  const login = async (email: string, pass: string) => {
-    if (!firebaseAuth) throw new Error('Auth not initialized');
-    return signInWithEmailAndPassword(firebaseAuth, email, pass);
-  };
-  
-  const loginWithGoogle = async () => {
-    if (!firebaseAuth) throw new Error('Auth not initialized');
-    return signInWithPopup(firebaseAuth, googleProvider);
-  };
-
+  const signup = async () => ({ user: DUMMY_USER });
+  const login = async () => ({ user: DUMMY_USER });
+  const loginWithGoogle = async () => ({ user: DUMMY_USER });
   const logout = async () => {
-    if (!firebaseAuth) return;
-    return signOut(firebaseAuth);
+      // In bypass mode, logout does nothing or we could refresh
+      window.location.href = '/';
   };
 
   return (
