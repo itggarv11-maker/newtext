@@ -34,6 +34,14 @@
         border-radius: 10px; 
       }
       ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+      
+      @keyframes neon-pulse {
+        0%, 100% { opacity: 0.5; filter: blur(20px); }
+        50% { opacity: 0.8; filter: blur(40px); }
+      }
+      .neon-glow {
+        animation: neon-pulse 3s infinite ease-in-out;
+      }
     </style>
   <script type="importmap">
 {

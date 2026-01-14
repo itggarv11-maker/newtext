@@ -1,21 +1,15 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Button from '../components/common/Button';
 import { useAuth } from '../contexts/AuthContext';
 import { 
-    AcademicCapIcon, RocketLaunchIcon, SparklesIcon, 
-    CheckBadgeIcon, BoltIcon, StarIcon, ShieldCheckIcon,
-    CheckCircleIcon, XCircleIcon, ScaleIcon, CalendarDaysIcon, 
-    VideoCameraIcon, BeakerIcon
+    CheckBadgeIcon, SparklesIcon, ScaleIcon, RocketLaunchIcon, CalendarDaysIcon
 } from '../components/icons';
 import Spinner from '../components/common/Spinner';
 
 const HomePage: React.FC = () => {
     const navigate = useNavigate();
-    const { currentUser, loading, loginWithGoogle } = useAuth();
-    const [authLoading, setAuthLoading] = useState(false);
     const { scrollY } = useScroll();
     
     const words = ["TOPS", "SPEED", "MASTERY"]; 
@@ -25,10 +19,6 @@ const HomePage: React.FC = () => {
 
     const heroY = useTransform(scrollY, [0, 500], [0, 100]);
     const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
-
-    useEffect(() => {
-        if (!loading && currentUser) navigate('/app', { replace: true });
-    }, [currentUser, loading, navigate]);
 
     useEffect(() => {
         let timer: number;
@@ -48,13 +38,9 @@ const HomePage: React.FC = () => {
         return () => clearTimeout(timer);
     }, [currentText, isDeleting, wordIndex]);
 
-    const handleGoogleLogin = async () => {
-        setAuthLoading(true);
-        try { await loginWithGoogle(); navigate('/app'); } catch (error) { console.error(error); } finally { setAuthLoading(false); }
-    };
-
     return (
-        <div className="relative min-h-screen bg-[#010208] text-white selection:bg-cyan-500/30 overflow-x-hidden hero-gradient">
+        <div className="relative min-h-screen bg-[#010208] text-white selection:bg-cyan-500/30 overflow-x-hidden">
+            {/* Background Grid */}
             <div className="fixed inset-0 z-0 pointer-events-none">
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
             </div>
@@ -91,21 +77,14 @@ const HomePage: React.FC = () => {
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-6 md:gap-8">
-                        <Link to="/signup">
+                        <Link to="/app">
                             <Button size="lg" className="w-64 md:w-80 h-20 md:h-24 !text-xl md:!text-3xl !font-black uppercase tracking-tighter bg-white !text-slate-950 shadow-[0_40px_100px_rgba(255,255,255,0.15)] hover:scale-[1.03] transition-all !rounded-[2.5rem] italic">
                                 INITIALIZE →
                             </Button>
                         </Link>
-                        <button onClick={handleGoogleLogin} disabled={authLoading} className="w-64 md:w-80 h-20 md:h-24 glass-card border-white/10 rounded-[2.5rem] flex items-center justify-center gap-6 hover:bg-white/5 transition-all group">
-                            {authLoading ? <Spinner /> : (
-                                <>
-                                    <div className="w-10 h-10 md:w-14 md:h-14 bg-white rounded-2xl flex items-center justify-center shadow-2xl group-hover:rotate-12 transition-transform">
-                                        <svg className="w-6 h-6 md:w-8 md:h-8" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z"/></svg>
-                                    </div>
-                                    <span className="text-xl md:text-2xl font-black uppercase tracking-widest text-slate-500 group-hover:text-white transition-colors italic">Cloud Sync</span>
-                                </>
-                            )}
-                        </button>
+                        <Link to="/app" className="w-64 md:w-80 h-20 md:h-24 glass-card border-white/10 rounded-[2.5rem] flex items-center justify-center gap-6 hover:bg-white/5 transition-all group">
+                            <span className="text-xl md:text-2xl font-black uppercase tracking-widest text-slate-500 group-hover:text-white transition-colors italic">OPEN HQ</span>
+                        </Link>
                     </div>
                 </motion.div>
             </header>
@@ -136,7 +115,6 @@ const HomePage: React.FC = () => {
                             tag="PRECISION CORE"
                             desc="The world's most reliable mathematical logic engine. 101% error-free board solutions."
                             color="bg-amber-500"
-                            image="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=80&w=800"
                         />
                         <BentoBox 
                             className="md:col-span-4"
@@ -168,7 +146,7 @@ const StatBox = ({ value, label, color }: any) => (
     </div>
 );
 
-const BentoBox = ({ className, icon, title, desc, color, image, tag }: any) => {
+const BentoBox = ({ className, icon, title, desc, color, tag }: any) => {
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         const rect = e.currentTarget.getBoundingClientRect();

@@ -88,9 +88,11 @@ const NewSessionPage: React.FC = () => {
                 if (!mediaUrl) throw new Error("Enter a Media Link.");
                 finalContent = await geminiService.fetchYouTubeTranscript(mediaUrl);
             } else if (contentSource === 'search') {
+                if (!chapterInfo.trim()) throw new Error("Please specify the Topic Name.");
                 setGlobalSubject(subject);
                 setGlobalClassLevel(classLevel);
                 setGlobalIntent(intent);
+                // Initiate search but don't await here, context handles the global loading state
                 startBackgroundSearch(() => geminiService.fetchChapterContent(classLevel, subject!, chapterInfo, chapterDetails));
                 navigate('/app');
                 return;

@@ -1,4 +1,4 @@
-import React, { ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
   children?: ReactNode;
@@ -10,31 +10,32 @@ interface State {
 }
 
 /**
- * FIX: Explicitly extending React.Component<Props, State> ensures that 'props' and 'state' 
- * are correctly typed and recognized by the TypeScript compiler.
+ * FIX: Explicitly extending Component<Props, State> to ensure the base class is correctly recognized.
+ * Removed 'override' modifiers as the compiler was failing to link the class to its base properly.
  */
-class ErrorBoundary extends React.Component<Props, State> {
-  // FIX: Explicitly declaring the 'state' property resolves "Property 'state' does not exist on type 'ErrorBoundary'".
-  public override state: State = {
+class ErrorBoundary extends Component<Props, State> {
+  // FIX: Removed 'override' to resolve compilation error when base class inheritance is not tracked correctly.
+  state: State = {
     hasError: false
   };
 
   constructor(props: Props) {
     super(props);
-    // Removed direct state assignment in constructor to use the property initialization above.
   }
 
   // Lifecycle method to update state when an error occurs in children components.
-  public static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
-  public override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  // FIX: Removed 'override' to fix the error identifying that ErrorBoundary "does not extend another class".
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('STUBRO CRITICAL FAILURE:', error, errorInfo);
   }
 
-  public override render() {
-    // FIX: Using 'this.state.hasError' now correctly resolves through the generic State interface.
+  // FIX: Removed 'override' to ensure render is recognized as a valid class member.
+  render() {
+    // FIX: inheritance is now properly established, allowing access to this.state and this.props.
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-[#010208] flex items-center justify-center p-8 text-center">
@@ -60,7 +61,6 @@ class ErrorBoundary extends React.Component<Props, State> {
       );
     }
 
-    // FIX: Using 'this.props.children' now correctly resolves through the generic Props interface.
     return this.props.children;
   }
 }

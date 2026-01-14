@@ -5,14 +5,14 @@ import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     AcademicCapIcon, BrainCircuitIcon, ChatBubbleIcon,
-    DocumentDuplicateIcon, LightBulbIcon, RectangleStackIcon,
+    DocumentDuplicateIcon, LightBulbIcon, 
     RocketLaunchIcon, BeakerIcon, SparklesIcon, ScaleIcon,
     CalendarDaysIcon, UsersIcon, MicrophoneIcon, 
     VideoCameraIcon, DocumentTextIcon, 
     PoetryProseIcon, ConceptAnalogyIcon, EthicalDilemmaIcon, 
-    HistoricalChatIcon, WhatIfHistoryIcon, ExamPredictorIcon, 
-    LearningPathIcon, AILabAssistantIcon, PencilSquareIcon, CameraIcon,
-    StopIcon, PaperAirplaneIcon, XMarkIcon, ChatBubbleLeftRightIcon
+    HistoricalChatIcon, WhatIfHistoryIcon, 
+    AILabAssistantIcon, CameraIcon,
+    StopIcon, PaperAirplaneIcon, XMarkIcon, ChatBubbleLeftRightIcon, SearchIcon
 } from '../components/icons';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
@@ -62,7 +62,7 @@ const toolCategories = [
 
 const DashboardPage: React.FC = () => {
     const navigate = useNavigate();
-    const { extractedText, subject, classLevel } = useContent();
+    const { extractedText, subject, classLevel, searchStatus, searchMessage } = useContent();
     const { userName, tokens } = useAuth();
     const [activeTool, setActiveTool] = useState<string>('none');
     const [isLoading, setIsLoading] = useState(false);
@@ -185,6 +185,26 @@ const DashboardPage: React.FC = () => {
             }
         } catch (e) { console.error(e); setActiveTool('none'); } finally { setIsLoading(false); }
     };
+
+    // FIX: Show high-visibility loading overlay if a background webcrawl is in progress
+    if (searchStatus === 'searching') {
+        return (
+            <div className="min-h-[80vh] flex flex-col items-center justify-center p-10 text-center space-y-12">
+                <div className="relative">
+                    <div className="absolute inset-0 bg-cyan-500 blur-[100px] opacity-20 neon-glow"></div>
+                    <div className="p-10 rounded-[3rem] bg-slate-900/50 border border-cyan-500/30 backdrop-blur-2xl relative z-10">
+                        <SearchIcon className="w-20 h-20 text-cyan-400 mx-auto animate-pulse mb-6" />
+                        <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter italic">CRAWLING WEB...</h2>
+                    </div>
+                </div>
+                <div className="space-y-4 max-w-xl">
+                    <p className="text-cyan-400 font-mono-tech text-sm tracking-[0.5em] uppercase font-black">Neural Interface Synchronizing</p>
+                    <p className="text-slate-500 text-lg md:text-xl font-medium leading-relaxed italic">"{searchMessage || 'Acquiring chapter data from cloud nodes...'}"</p>
+                </div>
+                <Spinner className="w-12 h-12" colorClass="bg-cyan-500" />
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-[1800px] mx-auto px-4 md:px-10 space-y-12 md:space-y-24 pb-40">
@@ -359,7 +379,7 @@ const DashboardPage: React.FC = () => {
                                                             <div className="text-3xl md:text-6xl font-black text-white tracking-tighter drop-shadow-2xl leading-tight italic">
                                                                 <MathRenderer text={resultData.finalAnswer || ''} />
                                                             </div>
-                                                            <div className="mt-8 mt-12 text-xs md:text-sm text-slate-500 font-medium italic border-t border-white/10 pt-6 md:pt-8 max-w-sm mx-auto">
+                                                            <div className="mt-8 md:mt-12 text-xs md:text-sm text-slate-500 font-medium italic border-t border-white/10 pt-6 md:pt-8 max-w-sm mx-auto">
                                                                 <MathRenderer text={resultData.recap} isChat />
                                                             </div>
                                                         </div>

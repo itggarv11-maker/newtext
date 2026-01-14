@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Route, Routes } from 'react-router-dom';
+import { HashRouter, Route, Routes, Navigate } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import HomePage from './pages/HomePage';
@@ -40,16 +40,17 @@ const AppContent: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden">
       <Header />
-      <main className="flex-grow w-full py-20 px-0 md:px-0">
+      <main className="flex-grow w-full py-20">
         <Routes>
-          {/* Default directly to Dashboard HQ */}
-          <Route path="/" element={<DashboardPage />} />
+          {/* Landing Page is now the default Home */}
+          <Route path="/" element={<HomePage />} />
+          
+          {/* Main App Dashboard */}
           <Route path="/app" element={<DashboardPage />} />
           
-          {/* Legacy/Optional pages */}
-          <Route path="/landing" element={<HomePage />} />
-          <Route path="/login" element={<DashboardPage />} /> {/* Redirect login to app */}
-          <Route path="/signup" element={<DashboardPage />} />
+          {/* Login/Signup handled by bypass in AuthContext, so they redirect to /app if visited */}
+          <Route path="/login" element={<Navigate to="/app" replace />} />
+          <Route path="/signup" element={<Navigate to="/app" replace />} />
           
           <Route path="/new-session" element={<NewSessionPage />} />
           <Route path="/question-paper" element={<QuestionPaperPage />} />
