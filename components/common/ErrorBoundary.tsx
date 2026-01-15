@@ -1,7 +1,7 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React from 'react';
 
 interface Props {
-  children?: ReactNode;
+  children?: React.ReactNode;
 }
 
 interface State {
@@ -10,11 +10,11 @@ interface State {
 }
 
 /**
- * FIX: Explicitly extending Component<Props, State> to ensure the base class is correctly recognized.
- * Removed 'override' modifiers as the compiler was failing to link the class to its base properly.
+ * FIX: Explicitly extending React.Component<Props, State> to ensure the base class is correctly 
+ * recognized and that inherited members like 'this.props' and 'this.state' are typed.
  */
-class ErrorBoundary extends Component<Props, State> {
-  // FIX: Removed 'override' to resolve compilation error when base class inheritance is not tracked correctly.
+class ErrorBoundary extends React.Component<Props, State> {
+  // FIX: Properly initialize state as a class field to resolve ambiguity in the component's state management.
   state: State = {
     hasError: false
   };
@@ -28,12 +28,11 @@ class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  // FIX: Removed 'override' to fix the error identifying that ErrorBoundary "does not extend another class".
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  // FIX: Use React.ErrorInfo type to explicitly handle error reporting and logging.
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('STUBRO CRITICAL FAILURE:', error, errorInfo);
   }
 
-  // FIX: Removed 'override' to ensure render is recognized as a valid class member.
   render() {
     // FIX: inheritance is now properly established, allowing access to this.state and this.props.
     if (this.state.hasError) {
@@ -61,6 +60,7 @@ class ErrorBoundary extends Component<Props, State> {
       );
     }
 
+    // FIX: props is now correctly recognized as a member of the component.
     return this.props.children;
   }
 }

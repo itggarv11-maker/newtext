@@ -184,8 +184,9 @@ export const fetchYouTubeTranscript = async (url: string): Promise<string> => {
 export const fetchChapterContent = async (level: ClassLevel, subject: Subject, chapter: string, details: string): Promise<string> => {
     const ai = getAI();
     const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `NCERT content for ${level} ${subject}, Chapter: ${chapter}. ${details}`,
+        model: 'gemini-3-pro-preview',
+        contents: `Search and retrieve complete NCERT chapter content for: ${level} ${subject}, Chapter Name: ${chapter}. Filters: ${details}. 
+        CRITICAL: Provide the FULL descriptive text of the chapter concepts. Do not just summarize. I need the raw knowledge data to feed into further AI analysis.`,
         config: { tools: [{ googleSearch: {} }] }
     });
     return response.text || "";
