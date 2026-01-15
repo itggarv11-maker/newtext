@@ -1,7 +1,7 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React from 'react';
 
 interface Props {
-  children?: ReactNode;
+  children?: React.ReactNode;
 }
 
 interface State {
@@ -10,11 +10,11 @@ interface State {
 }
 
 /**
- * FIX: Explicitly extending Component<Props, State> and using direct imports to ensure the base class is correctly 
- * recognized and that inherited members like 'this.props' and 'this.state' are properly typed and accessible in TypeScript.
+ * FIX: Explicitly extending React.Component<Props, State> ensures that inherited members 
+ * such as 'this.props' and 'this.state' are correctly recognized and typed by TypeScript.
  */
-class ErrorBoundary extends Component<Props, State> {
-  // FIX: Properly initialize state as a class field with explicit type to avoid ambiguity.
+class ErrorBoundary extends React.Component<Props, State> {
+  // FIX: Explicitly initialize state with type safety.
   public state: State = {
     hasError: false
   };
@@ -28,14 +28,17 @@ class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  // FIX: Use ErrorInfo type to explicitly handle error reporting and logging for stability.
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  // FIX: Use React.ErrorInfo type directly for robust error reporting.
+  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('STUBRO CRITICAL FAILURE:', error, errorInfo);
   }
 
   public render() {
-    // FIX: Inheritance is now robustly established, allowing access to this.state.
-    if (this.state.hasError) {
+    const { hasError, error } = this.state;
+    // FIX: 'props' is now correctly recognized as a member of the class through React.Component inheritance.
+    const { children } = this.props;
+
+    if (hasError) {
       return (
         <div className="min-h-screen bg-[#010208] flex items-center justify-center p-8 text-center">
           <div className="max-w-md p-10 glass-card rounded-[2.5rem] border-red-500/30 shadow-[0_0_50px_rgba(239,68,68,0.2)]">
@@ -53,15 +56,14 @@ class ErrorBoundary extends Component<Props, State> {
               Restart Core
             </button>
             <p className="mt-6 text-[8px] font-mono text-slate-700 uppercase tracking-widest">
-              Err_Trace: {this.state.error?.message || "Unknown Logic Failure"}
+              Err_Trace: {error?.message || "Unknown Logic Failure"}
             </p>
           </div>
         </div>
       );
     }
 
-    // FIX: props is now correctly recognized as a member of the component by extending the Component class.
-    return this.props.children;
+    return children;
   }
 }
 

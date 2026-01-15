@@ -35,6 +35,7 @@ import ExamPredictorPage from './pages/ExamPredictorPage';
 import RealWorldApplicationPage from './pages/RealWorldApplicationPage';
 import PersonalizedLearningPathPage from './pages/PersonalizedLearningPathPage';
 import DigitalLabPage from './pages/DigitalLabPage';
+import ProtectedRoute from './components/common/ProtectedRoute';
 
 const AppContent: React.FC = () => {
   return (
@@ -42,39 +43,35 @@ const AppContent: React.FC = () => {
       <Header />
       <main className="flex-grow w-full py-20">
         <Routes>
-          {/* Landing Page is now the default Home */}
           <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
           
-          {/* Main App Dashboard */}
-          <Route path="/app" element={<DashboardPage />} />
+          {/* SECURED COMMAND ROUTES */}
+          <Route path="/app" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/new-session" element={<ProtectedRoute><NewSessionPage /></ProtectedRoute>} />
+          <Route path="/question-paper" element={<ProtectedRoute><QuestionPaperPage /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/group-quiz" element={<ProtectedRoute><GroupQuizPage /></ProtectedRoute>} />
+          <Route path="/career-guidance" element={<ProtectedRoute><CareerGuidancePage /></ProtectedRoute>} />
+          <Route path="/study-planner" element={<ProtectedRoute><StudyPlannerPage /></ProtectedRoute>} />
+          <Route path="/mind-map" element={<ProtectedRoute><MindMapPage /></ProtectedRoute>} />
+          <Route path="/gemini-live" element={<ProtectedRoute><GeminiLivePage /></ProtectedRoute>} />
+          <Route path="/viva" element={<ProtectedRoute><VivaPage /></ProtectedRoute>} />
+          <Route path="/visual-explanation" element={<ProtectedRoute><VisualExplanationPage /></ProtectedRoute>} />
+          <Route path="/live-debate" element={<ProtectedRoute><LiveDebatePage /></ProtectedRoute>} />
+          <Route path="/chapter-conquest" element={<ProtectedRoute><ChapterConquestPage /></ProtectedRoute>} />
+          <Route path="/digital-lab" element={<ProtectedRoute><DigitalLabPage /></ProtectedRoute>} />
           
-          {/* Login/Signup handled by bypass in AuthContext, so they redirect to /app if visited */}
-          <Route path="/login" element={<Navigate to="/app" replace />} />
-          <Route path="/signup" element={<Navigate to="/app" replace />} />
-          
-          <Route path="/new-session" element={<NewSessionPage />} />
-          <Route path="/question-paper" element={<QuestionPaperPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/group-quiz" element={<GroupQuizPage />} />
-          <Route path="/career-guidance" element={<CareerGuidancePage />} />
-          <Route path="/study-planner" element={<StudyPlannerPage />} />
-          <Route path="/mind-map" element={<MindMapPage />} />
-          <Route path="/gemini-live" element={<GeminiLivePage />} />
-          <Route path="/viva" element={<VivaPage />} />
-          <Route path="/visual-explanation" element={<VisualExplanationPage />} />
-          <Route path="/live-debate" element={<LiveDebatePage />} />
-          <Route path="/chapter-conquest" element={<ChapterConquestPage />} />
-          <Route path="/digital-lab" element={<DigitalLabPage />} />
-          
-          <Route path="/ai-lab-assistant" element={<AILabAssistantPage />} />
-          <Route path="/historical-chat" element={<HistoricalChatPage />} />
-          <Route path="/poetry-prose-analysis" element={<PoetryProseAnalysisPage />} />
-          <Route path="/concept-analogy" element={<ConceptAnalogyPage />} />
-          <Route path="/ethical-dilemma" element={<EthicalDilemmaPage />} />
-          <Route path="/what-if-history" element={<WhatIfHistoryPage />} />
-          <Route path="/exam-predictor" element={<ExamPredictorPage />} />
-          <Route path="/real-world-applications" element={<RealWorldApplicationPage />} />
-          <Route path="/personalized-learning-path" element={<PersonalizedLearningPathPage />} />
+          <Route path="/ai-lab-assistant" element={<ProtectedRoute><AILabAssistantPage /></ProtectedRoute>} />
+          <Route path="/historical-chat" element={<ProtectedRoute><HistoricalChatPage /></ProtectedRoute>} />
+          <Route path="/poetry-prose-analysis" element={<ProtectedRoute><PoetryProseAnalysisPage /></ProtectedRoute>} />
+          <Route path="/concept-analogy" element={<ProtectedRoute><ConceptAnalogyPage /></ProtectedRoute>} />
+          <Route path="/ethical-dilemma" element={<ProtectedRoute><EthicalDilemmaPage /></ProtectedRoute>} />
+          <Route path="/what-if-history" element={<ProtectedRoute><WhatIfHistoryPage /></ProtectedRoute>} />
+          <Route path="/exam-predictor" element={<ProtectedRoute><ExamPredictorPage /></ProtectedRoute>} />
+          <Route path="/real-world-applications" element={<ProtectedRoute><RealWorldApplicationPage /></ProtectedRoute>} />
+          <Route path="/personalized-learning-path" element={<ProtectedRoute><PersonalizedLearningPathPage /></ProtectedRoute>} />
           
           <Route path="/contact" element={<div className="container mx-auto px-4"><ContactPage /></div>} />
           <Route path="/about" element={<div className="container mx-auto px-4"><AboutPage /></div>} />
