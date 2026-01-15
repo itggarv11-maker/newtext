@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Subject, ClassLevel } from '../types';
 
@@ -57,22 +56,36 @@ export const ContentProvider: React.FC<{ children: ReactNode }> = ({ children })
   const generateSessionId = () => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
   const startBackgroundSearch = async (searchFn: () => Promise<string>) => {
+      // PRE-ASYNC ACTIONS: Set states immediately so UI can show loading
       const newSid = generateSessionId();
       setSessionId(newSid);
       setHasSessionStarted(true);
       setSearchStatus('searching');
-      setSearchMessage('Initiating Neural Search...');
+      setSearchMessage('CRAWLING WEB FOR NCERT DATA...');
+      
       try {
           const text = await searchFn();
+          if (!text || text.length < 50) throw new Error("Search returned invalid or too little data.");
+          
           setExtractedText(text);
           setSearchStatus('success');
-          setSearchMessage('Knowledge base synced!');
+          setSearchMessage('KNOWLEDGE SYNC COMPLETE.');
           if (postSearchAction) postSearchAction.navigate(postSearchAction.tool);
-          setTimeout(() => { setSearchStatus('idle'); setSearchMessage(''); setPostSearchAction(null); }, 5000);
+          
+          // Clear status after delay
+          setTimeout(() => { 
+              setSearchStatus('idle'); 
+              setSearchMessage(''); 
+              setPostSearchAction(null); 
+          }, 3000);
       } catch (err) {
           setSearchStatus('error');
           setSearchMessage(err instanceof Error ? err.message : "Sync Failed.");
-          setTimeout(() => { setSearchStatus('idle'); setSearchMessage(''); }, 8000);
+          // Don't reset session start on error so user can see what happened
+          setTimeout(() => { 
+              setSearchStatus('idle'); 
+              setSearchMessage(''); 
+          }, 6000);
       }
   };
   
@@ -80,6 +93,7 @@ export const ContentProvider: React.FC<{ children: ReactNode }> = ({ children })
     setSessionId(generateSessionId());
     setExtractedText(text);
     setHasSessionStarted(true);
+    setSearchStatus('idle'); // Ensure no stray loading state
   };
 
   const resetContent = () => {
@@ -89,6 +103,7 @@ export const ContentProvider: React.FC<{ children: ReactNode }> = ({ children })
     setIntent('any');
     setHasSessionStarted(false);
     setSessionId(null);
+    setSearchStatus('idle');
   };
 
   return (

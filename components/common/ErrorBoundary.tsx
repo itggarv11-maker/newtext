@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 interface State {
@@ -10,12 +10,12 @@ interface State {
 }
 
 /**
- * FIX: Explicitly extending React.Component<Props, State> to ensure the base class is correctly 
- * recognized and that inherited members like 'this.props' and 'this.state' are typed.
+ * FIX: Explicitly extending Component<Props, State> and using direct imports to ensure the base class is correctly 
+ * recognized and that inherited members like 'this.props' and 'this.state' are properly typed and accessible in TypeScript.
  */
-class ErrorBoundary extends React.Component<Props, State> {
-  // FIX: Properly initialize state as a class field to resolve ambiguity in the component's state management.
-  state: State = {
+class ErrorBoundary extends Component<Props, State> {
+  // FIX: Properly initialize state as a class field with explicit type to avoid ambiguity.
+  public state: State = {
     hasError: false
   };
 
@@ -24,17 +24,17 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 
   // Lifecycle method to update state when an error occurs in children components.
-  static getDerivedStateFromError(error: Error): State {
+  public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
-  // FIX: Use React.ErrorInfo type to explicitly handle error reporting and logging.
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  // FIX: Use ErrorInfo type to explicitly handle error reporting and logging for stability.
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('STUBRO CRITICAL FAILURE:', error, errorInfo);
   }
 
-  render() {
-    // FIX: inheritance is now properly established, allowing access to this.state and this.props.
+  public render() {
+    // FIX: Inheritance is now robustly established, allowing access to this.state.
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-[#010208] flex items-center justify-center p-8 text-center">
@@ -60,7 +60,7 @@ class ErrorBoundary extends React.Component<Props, State> {
       );
     }
 
-    // FIX: props is now correctly recognized as a member of the component.
+    // FIX: props is now correctly recognized as a member of the component by extending the Component class.
     return this.props.children;
   }
 }

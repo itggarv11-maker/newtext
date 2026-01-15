@@ -29,7 +29,7 @@ const DUMMY_USER: any = {
 };
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Always authenticated, never loading
+  // Always authenticated to bypass login screens
   const [currentUser] = useState<FirebaseUser | null>(DUMMY_USER);
   const [userName] = useState<string | null>("ASTRA OPERATOR");
   const [isPremium] = useState<boolean>(true);

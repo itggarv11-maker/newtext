@@ -38,7 +38,6 @@ const NewSessionPage: React.FC = () => {
     const [fileContent, setFileContent] = useState('');
     const [fileName, setFileName] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [syncMessage, setSyncMessage] = useState('Initializing Link...');
     const [error, setError] = useState<string | null>(null);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,10 +74,28 @@ const NewSessionPage: React.FC = () => {
 
     const handleStartSession = async () => {
         if (!subject) return setError("Protocol Error: Select a subject module.");
-        setIsLoading(true);
-        setError(null);
         
         try {
+            if (contentSource === 'search') {
+                if (!chapterInfo.trim()) throw new Error("Please specify the Topic Name.");
+                
+                // IMPORTANT: Navigating immediately so the Dashboard can show the LOADING SCREEN
+                setGlobalSubject(subject);
+                setGlobalClassLevel(classLevel);
+                setGlobalIntent(intent);
+                
+                // Trigger the background search which sets 'searching' status in context
+                startBackgroundSearch(() => 
+                    geminiService.fetchChapterContent(classLevel, subject!, chapterInfo, chapterDetails)
+                );
+                
+                navigate('/app');
+                return;
+            }
+
+            setIsLoading(true);
+            setError(null);
+            
             let finalContent = '';
             if (contentSource === 'paste') {
                 finalContent = pastedText;
@@ -86,24 +103,8 @@ const NewSessionPage: React.FC = () => {
                 finalContent = fileContent;
                 if (!finalContent) throw new Error("No file data detected. Upload a PDF/DOCX.");
             } else if (contentSource === 'youtube') {
-                setSyncMessage("Transcribing media stream...");
                 if (!mediaUrl) throw new Error("Enter a Media Link.");
                 finalContent = await geminiService.fetchYouTubeTranscript(mediaUrl);
-            } else if (contentSource === 'search') {
-                if (!chapterInfo.trim()) throw new Error("Please specify the Topic Name.");
-                setSyncMessage("Web Crawler: Scanning cloud nodes...");
-                setGlobalSubject(subject);
-                setGlobalClassLevel(classLevel);
-                setGlobalIntent(intent);
-                
-                // IMPORTANT: We AWAIT the search here to ensure extractedText is populated before we hit the dashboard
-                const text = await geminiService.fetchChapterContent(classLevel, subject!, chapterInfo, chapterDetails);
-                if (!text || text.length < 100) {
-                    throw new Error("Neural search returned insufficient data. Try more specific topic terms.");
-                }
-                startSessionWithContent(text);
-                navigate('/app');
-                return;
             }
 
             if (finalContent.trim().length < 50) throw new Error("Content too short to initialize Master session.");
@@ -115,15 +116,13 @@ const NewSessionPage: React.FC = () => {
             navigate('/app');
         } catch (err: any) {
             setError(err.message);
-        } finally {
             setIsLoading(false);
-            setSyncMessage('Initializing Link...');
         }
     };
 
     return (
         <div className="max-w-[1600px] mx-auto p-4 md:p-12 pb-40">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 text-white">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
                 <div className="lg:col-span-4 space-y-6 md:space-y-8">
                     <Card variant="dark" className="!p-6 md:!p-10 border-white/5 bg-slate-900/70 backdrop-blur-3xl shadow-2xl !rounded-3xl md:!rounded-[3rem]">
                         <h2 className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] mb-8 md:mb-10">01. Astra Target</h2>
@@ -200,7 +199,7 @@ const NewSessionPage: React.FC = () => {
                         <div className="flex-grow flex flex-col">
                             <AnimatePresence mode="wait">
                                 {contentSource === 'paste' && (
-                                    <motion.div key="paste" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="flex-grow">
+                                    <motion.div key="paste" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="flex-grow text-white">
                                         <textarea value={pastedText} onChange={e => setPastedText(e.target.value)} placeholder="> Initialize direct text-stream... (Paste here)" className="w-full h-full min-h-[300px] md:min-h-[450px] bg-slate-950/50 p-6 md:p-12 rounded-2xl md:rounded-[3.5rem] text-slate-300 font-mono-code text-sm md:text-base border border-white/10 focus:border-violet-500 outline-none resize-none shadow-inner leading-relaxed" />
                                     </motion.div>
                                 )}
@@ -280,12 +279,7 @@ const NewSessionPage: React.FC = () => {
 
                         <div className="mt-8 md:mt-12">
                              <Button onClick={handleStartSession} disabled={isLoading} className="w-full h-20 md:h-32 !text-2xl md:!text-5xl !font-black !rounded-2xl md:!rounded-[3.5rem] shadow-[0_20px_60px_rgba(124,58,237,0.2)] md:shadow-[0_30px_100px_rgba(124,58,237,0.3)] bg-white !text-slate-950 group hover:scale-[1.02] active:scale-[0.98] transition-all italic">
-                                {isLoading ? (
-                                    <div className="flex items-center gap-4">
-                                        <Spinner colorClass="bg-slate-900" className="w-8 h-8 md:w-12 md:h-12" />
-                                        <span className="text-sm md:text-xl font-bold uppercase">{syncMessage}</span>
-                                    </div>
-                                ) : 'LAUNCH MISSION'}
+                                {isLoading ? <Spinner colorClass="bg-slate-950" /> : 'LAUNCH MISSION'}
                              </Button>
                         </div>
                     </Card>
