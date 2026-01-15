@@ -1,8 +1,7 @@
-
 import React, { useState, useRef } from 'react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
-import { QuestionPaper, GradedPaper } from '../types';
+import { QuestionPaper, GradedPaper, Subject } from '../types';
 import * as geminiService from '../services/geminiService';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
@@ -10,7 +9,7 @@ import Spinner from '../components/common/Spinner';
 import { DownloadIcon } from '../components/icons/DownloadIcon';
 import { CameraIcon } from '../components/icons/CameraIcon';
 import { useContent } from '../contexts/ContentContext';
-import { useNavigate, Link } from 'https://esm.sh/react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ArrowRightIcon } from '../components/icons/ArrowRightIcon';
 import { CheckCircleIcon } from '../components/icons/CheckCircleIcon';
 import { XCircleIcon } from '../components/icons/XCircleIcon';
@@ -42,13 +41,11 @@ const QuestionPaperPage: React.FC = () => {
 
     const [step, setStep] = useState<'settings' | 'generated' | 'grading' | 'results'>('settings');
 
-    // Paper Settings State
     const [numQuestions, setNumQuestions] = useState(10);
     const [questionTypes, setQuestionTypes] = useState('A mix of MCQs and short answer questions');
     const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard'>('Medium');
     const [totalMarks, setTotalMarks] = useState(50);
     
-    // Generated Content State
     const [questionPaper, setQuestionPaper] = useState<QuestionPaper | null>(null);
     const [gradedPaper, setGradedPaper] = useState<GradedPaper | null>(null);
     const [answerSheetFiles, setAnswerSheetFiles] = useState<File[]>([]);
@@ -76,7 +73,6 @@ const QuestionPaperPage: React.FC = () => {
         }
     };
 
-    // If no content has been provided in the app, guide the user to the dashboard.
     if (!extractedText) {
         return (
             <div className="text-center">
@@ -133,13 +129,13 @@ const QuestionPaperPage: React.FC = () => {
             const canvasHeight = canvas.height;
             const ratio = canvasHeight / canvasWidth;
             
-            const imgWidth = pdfWidth - 20; // Page width with 10mm margins on each side
+            const imgWidth = pdfWidth - 20;
             const imgHeight = imgWidth * ratio;
             let heightLeft = imgHeight;
-            let position = 10; // Top margin
+            let position = 10;
 
             pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-            heightLeft -= (pdfHeight - 20); // Subtract page height with top/bottom margins
+            heightLeft -= (pdfHeight - 20);
 
             while (heightLeft > 0) {
               position = -heightLeft + 10;

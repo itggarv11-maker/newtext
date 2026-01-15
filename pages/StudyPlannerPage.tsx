@@ -1,10 +1,8 @@
-
 import React, { useState } from 'react';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import Spinner from '../components/common/Spinner';
-import { CalendarDaysIcon, ClockIcon, AcademicCapIcon, SparklesIcon } from '../components/icons';
-import { motion } from 'https://esm.sh/framer-motion';
+import { CalendarDaysIcon, ClockIcon, AcademicCapIcon } from '../components/icons';
 
 const StudyPlannerPage: React.FC = () => {
     const [goal, setGoal] = useState('');

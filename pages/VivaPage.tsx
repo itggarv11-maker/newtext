@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'https://esm.sh/react-router-dom';
+import React, { useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { ClassLevel, VivaQuestion } from '../types';
 import { CLASS_LEVELS } from '../constants';
 import * as geminiService from '../services/geminiService';
@@ -9,7 +9,6 @@ import Spinner from '../components/common/Spinner';
 import { MicrophoneIcon } from '../components/icons/MicrophoneIcon';
 import { StopIcon } from '../components/icons/StopIcon';
 import { AcademicCapIcon } from '../components/icons/AcademicCapIcon';
-import { ArrowRightIcon } from '../components/icons/ArrowRightIcon';
 import { CheckCircleIcon } from '../components/icons/CheckCircleIcon';
 
 const blobToBase64 = (blob: Blob): Promise<string> => new Promise((resolve, reject) => {
@@ -28,21 +27,17 @@ const blobToBase64 = (blob: Blob): Promise<string> => new Promise((resolve, reje
 const VivaPage: React.FC = () => {
     const [step, setStep] = useState<'setup' | 'in_progress' | 'evaluating' | 'results'>('setup');
     
-    // Setup State
     const [topic, setTopic] = useState('');
     const [classLevel, setClassLevel] = useState<ClassLevel>('Class 10');
     const [numQuestions, setNumQuestions] = useState(5);
 
-    // Viva State
     const [questions, setQuestions] = useState<VivaQuestion[]>([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
-    // Answer State
     const [answerMode, setAnswerMode] = useState<'speak' | 'type'>('speak');
     const [typedAnswer, setTypedAnswer] = useState('');
     const [recordedAudioBlob, setRecordedAudioBlob] = useState<Blob | null>(null);
     
-    // Recording & Loading State
     const [isRecording, setIsRecording] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [evaluatingMessage, setEvaluatingMessage] = useState('');
@@ -73,7 +68,6 @@ const VivaPage: React.FC = () => {
         setIsLoading(true);
         try {
             const generatedQuestions = await geminiService.generateVivaQuestions(topic, classLevel, numQuestions);
-            // Defensive mapping: ensure questionText is always a string to fix Error #31
             const questionStates: VivaQuestion[] = generatedQuestions.map(q => ({
                 questionText: typeof q === 'string' ? q : JSON.stringify(q),
                 isAnswered: false

@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 interface State {
@@ -10,11 +10,11 @@ interface State {
 }
 
 /**
- * FIX: Explicitly extending React.Component<Props, State> ensures that inherited members 
- * such as 'this.props' and 'this.state' are correctly recognized and typed by TypeScript.
+ * FIXED: Standard class component implementation with TypeScript.
+ * We explicitly extend Component<Props, State> to ensure 'this.props' and 'this.state' are typed.
  */
-class ErrorBoundary extends React.Component<Props, State> {
-  // FIX: Explicitly initialize state with type safety.
+class ErrorBoundary extends Component<Props, State> {
+  // Initialize state with type safety.
   public state: State = {
     hasError: false
   };
@@ -28,14 +28,14 @@ class ErrorBoundary extends React.Component<Props, State> {
     return { hasError: true, error };
   }
 
-  // FIX: Use React.ErrorInfo type directly for robust error reporting.
-  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  // Robust error reporting using ErrorInfo type.
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('STUBRO CRITICAL FAILURE:', error, errorInfo);
   }
 
   public render() {
     const { hasError, error } = this.state;
-    // FIX: 'props' is now correctly recognized as a member of the class through React.Component inheritance.
+    // Inherited 'props' is now correctly recognized as a member of the class.
     const { children } = this.props;
 
     if (hasError) {

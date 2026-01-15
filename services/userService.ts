@@ -5,7 +5,6 @@ import {
     serverTimestamp, 
     doc, 
     getDoc, 
-    setDoc, 
     updateDoc, 
     query,
     orderBy,
@@ -15,9 +14,6 @@ import {
 
 const getUser = () => auth?.currentUser;
 
-/**
- * Ensures data is serializable for Firestore (removes Blobs, Functions, etc)
- */
 function cleanForFirestore(obj: any): any {
   if (obj === null || obj === undefined) return null;
   if (obj instanceof Blob) return "[Media Data]"; 
@@ -40,14 +36,18 @@ export const checkTokens = async (): Promise<boolean> => {
     const snap = await getDoc(doc(db, 'users', user.uid));
     if (!snap.exists()) return false;
     const tokens = snap.data().tokens ?? 100;
-    return tokens > 0;
+    // Unlimited check
+    return tokens > 0 || tokens > 500; 
 };
 
 export const deductToken = async () => {
     const user = getUser();
     if (!user) return;
     const userRef = doc(db, 'users', user.uid);
-    // Atomic deduction
+    const snap = await getDoc(userRef);
+    if (snap.exists() && (snap.data().tokens || 0) > 500) {
+        return; // Premium unlimited bypass
+    }
     await updateDoc(userRef, {
         tokens: increment(-1)
     });
@@ -67,7 +67,7 @@ export const saveActivity = async (
 
     const activityData = {
         type,
-        topic: topic || "General Session",
+        topic: topic || "Neural Link Session",
         subject: subject || "General",
         sessionId: sessionId || "standalone",
         timestamp: serverTimestamp(),
@@ -77,10 +77,9 @@ export const saveActivity = async (
 
     try {
         const historyRef = collection(db, 'users', user.uid, 'history');
-        const docRef = await addDoc(historyRef, activityData);
-        return docRef.id;
+        await addDoc(historyRef, activityData);
     } catch (e) {
-        console.error("Cloud Archive Failure:", e);
+        console.error("Cloud Save Failure:", e);
     }
 };
 
@@ -97,7 +96,7 @@ export const getFullHistory = async () => {
             date: doc.data().timestamp?.toDate().toLocaleDateString() || new Date().toLocaleDateString()
         }));
     } catch (e) { 
-        console.error("Archive sync failed:", e);
+        console.error("History sync failed:", e);
         return []; 
     }
 };

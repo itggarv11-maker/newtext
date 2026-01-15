@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'https://esm.sh/react-router-dom';
+import { Link } from 'react-router-dom';
 import { Chat } from '@google/genai';
 import * as geminiService from '../services/geminiService';
 import * as ttsService from '../services/ttsService';
@@ -74,8 +73,6 @@ const LiveDebatePage: React.FC = () => {
             }
         };
         updateVoices();
-        // The service already listens to 'voiceschanged', we just need to grab the latest list
-        // by listening for our custom event dispatched by the service.
         window.addEventListener('voicesloaded', updateVoices);
         return () => window.removeEventListener('voicesloaded', updateVoices);
     }, []);
@@ -347,110 +344,108 @@ const LiveDebatePage: React.FC = () => {
                         <div className="flex items-start gap-3">
                             <span className="flex-shrink-0 w-10 h-10 bg-slate-700 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-md">C</span>
                             <div className="max-w-xl p-3 rounded-lg shadow-md bg-white text-slate-800 border border-slate-200">
-                                <Spinner className="w-10" colorClass="bg-slate-500" />
+                                <Spinner colorClass="bg-violet-500" />
                             </div>
                         </div>
                     )}
                 </div>
 
-                <div className="p-4 border-t border-slate-300 space-y-2">
-                    {error && <p className="text-red-500 text-center font-semibold mb-2">{error}</p>}
-                    {recordedAudioBlob && !isRecording && (
-                        <div className="p-2 bg-slate-100 rounded-lg flex items-center gap-2">
-                            <p className="text-sm font-medium text-slate-700 flex-grow">Your recorded argument is ready to send.</p>
-                            <audio src={URL.createObjectURL(recordedAudioBlob)} controls className="h-8"/>
-                            <button onClick={() => setRecordedAudioBlob(null)} className="text-red-500 hover:text-red-700 font-bold text-lg">&times;</button>
-                        </div>
-                    )}
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="text"
-                            value={userInput}
-                            onChange={(e) => { setUserInput(e.target.value); setRecordedAudioBlob(null); }}
-                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSubmitArgument(); } }}
-                            placeholder={isAiThinking ? "Critico is thinking..." : "Type or record your argument..."}
-                            className="w-full p-3 bg-white border border-slate-300 rounded-lg focus:ring-violet-500 focus:border-violet-500 text-slate-900"
-                            disabled={isAiThinking || isRecording}
-                        />
-                        <Button onClick={isRecording ? stopRecording : startRecording} variant="ghost" className={isRecording ? '!text-red-500 animate-pulse' : '!text-slate-600'} disabled={isAiThinking}>
-                            {isRecording ? <StopIcon className="w-6 h-6"/> : <MicrophoneIcon className="w-6 h-6"/>}
-                        </Button>
-                        <Button onClick={handleSubmitArgument} disabled={isAiThinking || isRecording || (!userInput.trim() && !recordedAudioBlob)}>
-                            <PaperAirplaneIcon className="w-6 h-6"/>
-                        </Button>
+                <div className="p-4 border-t border-slate-300">
+                    <div className="flex gap-4 items-center">
+                         <div className="flex-grow relative">
+                             <textarea 
+                                value={userInput}
+                                onChange={(e) => setUserInput(e.target.value)}
+                                placeholder="State your argument..."
+                                className="w-full p-4 bg-white border border-slate-300 rounded-2xl focus:ring-violet-500 outline-none resize-none h-20"
+                             />
+                             <div className="absolute bottom-2 right-2 flex gap-2">
+                                <Button onClick={handleSubmitArgument} disabled={isAiThinking || (!userInput.trim() && !recordedAudioBlob)} size="sm">
+                                    {isAiThinking ? <Spinner /> : <PaperAirplaneIcon className="w-5 h-5"/>}
+                                </Button>
+                             </div>
+                         </div>
+                         
+                         <div className="flex flex-col gap-2">
+                            <button 
+                                onClick={isRecording ? stopRecording : startRecording} 
+                                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-violet-600 shadow-lg shadow-violet-600/20'}`}
+                                disabled={isAiThinking}
+                            >
+                                {isRecording ? <StopIcon className="w-6 h-6 text-white"/> : <MicrophoneIcon className="w-6 h-6 text-white"/>}
+                            </button>
+                            {recordedAudioBlob && !isRecording && (
+                                <div className="text-[10px] text-green-600 font-bold uppercase text-center">Audio Ready</div>
+                            )}
+                         </div>
                     </div>
                 </div>
             </div>
         </Card>
     );
-    
-    const renderLoading = (message: string) => (
-        <Card variant="light" className="max-w-md mx-auto text-center">
-            <Spinner className="w-16 h-16" colorClass="bg-violet-600"/>
-            <h2 className="text-2xl font-bold text-slate-800 mt-6">{message}</h2>
+
+    const renderEvaluating = () => (
+        <Card variant="dark" className="max-w-md mx-auto text-center !p-16 border-white/10">
+            <div className="relative inline-block">
+                <div className="absolute inset-0 bg-violet-600 blur-[80px] opacity-20 animate-pulse"></div>
+                <Spinner className="w-24 h-24 relative z-10" colorClass="bg-violet-600"/>
+            </div>
+            <h2 className="text-4xl font-black text-white uppercase tracking-tighter mt-12 italic">JUDGING...</h2>
+            <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] mt-4">{loadingMessage}</p>
         </Card>
     );
 
-    const renderResults = () => {
-        if (!scorecard) return null;
-        const scoreColor = scorecard.overallScore > 75 ? 'text-green-600' : scorecard.overallScore > 50 ? 'text-amber-600' : 'text-red-600';
-
-        return (
-            <Card variant="light" className="max-w-4xl mx-auto">
-                <div className="text-center border-b border-slate-300 pb-4">
-                    <h1 className="text-3xl font-bold text-slate-800">Debate Evaluation</h1>
-                    <p className={`text-4xl font-extrabold mt-2 ${scoreColor}`}>{scorecard.overallScore}<span className="text-2xl text-slate-500">/100</span></p>
-                    <p className="font-semibold text-slate-600 mt-2">{scorecard.concludingRemarks}</p>
-                </div>
-                <div className="grid md:grid-cols-2 gap-8 mt-6">
-                    <div>
-                        <h3 className="text-lg font-bold text-slate-700 mb-4">Performance Metrics</h3>
-                        <div className="space-y-3">
-                            <ScoreBar label="Argument Strength" score={scorecard.argumentStrength} />
-                            <ScoreBar label="Rebuttal Effectiveness" score={scorecard.rebuttalEffectiveness} />
-                            <ScoreBar label="Clarity & Articulation" score={scorecard.clarity} />
-                        </div>
+    const renderResults = () => scorecard && (
+        <Card variant="dark" className="max-w-5xl mx-auto !p-8 md:!p-16 border-white/10">
+            <div className="text-center border-b border-white/5 pb-12">
+                <h1 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter italic">DEBATE SCORECARD</h1>
+                <div className="mt-8 inline-flex items-center gap-6 px-10 py-5 bg-slate-950 rounded-full border border-white/5">
+                    <span className="text-7xl font-black text-cyan-400 italic">{scorecard.overallScore}</span>
+                    <div className="text-left">
+                        <p className="text-slate-500 font-black text-[10px] uppercase tracking-widest">Overall Score</p>
+                        <p className="text-2xl font-bold text-white">/ 100</p>
                     </div>
-                    <div className="space-y-6">
-                        <div>
-                            <h3 className="font-bold text-green-700">Your Strongest Argument:</h3>
-                            <p className="text-sm p-3 bg-green-100/70 border border-green-200 rounded-md mt-2 italic">"{scorecard.strongestArgument}"</p>
-                        </div>
-                        <div>
-                            <h3 className="font-bold text-amber-700">Suggestion for Improvement:</h3>
-                            <p className="text-sm p-3 bg-amber-100/70 border border-amber-200 rounded-md mt-2">{scorecard.improvementSuggestion}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="text-center mt-8">
-                     <Button onClick={() => { setStep('setup'); setDebateHistory([]); setTopic(''); }} variant="outline">Start a New Debate</Button>
-                </div>
-            </Card>
-        );
-    };
-    
-    const ScoreBar = ({ label, score }: { label: string, score: number}) => {
-        const bgColor = score > 75 ? 'bg-green-500' : score > 50 ? 'bg-amber-500' : 'bg-red-500';
-        return (
-            <div>
-                <div className="flex justify-between text-sm font-medium text-slate-600 mb-1">
-                    <span>{label}</span>
-                    <span>{score}/100</span>
-                </div>
-                <div className="w-full bg-slate-200 rounded-full h-2.5">
-                    <div className={`h-2.5 rounded-full ${bgColor}`} style={{ width: `${score}%` }}></div>
                 </div>
             </div>
-        )
-    };
+            
+            <div className="grid md:grid-cols-3 gap-6 mt-12">
+                {[
+                    { label: 'Argument Strength', val: scorecard.argumentStrength },
+                    { label: 'Rebuttal Skill', val: scorecard.rebuttalEffectiveness },
+                    { label: 'Clarity', val: scorecard.clarity }
+                ].map((stat, i) => (
+                    <div key={i} className="p-6 bg-white/5 rounded-3xl border border-white/5 text-center">
+                        <p className="text-3xl font-black text-white mb-2">{stat.val}/10</p>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{stat.label}</p>
+                    </div>
+                ))}
+            </div>
 
-    switch(step) {
-        case 'setup': return renderSetup();
-        case 'debating': return renderDebating();
-        case 'evaluating': return renderLoading(loadingMessage);
-        case 'results': return renderResults();
-        default: return renderSetup();
-    }
+            <div className="mt-12 space-y-6">
+                <Card variant="glass" className="!p-8">
+                    <h3 className="text-xl font-bold mb-4 text-cyan-400 uppercase tracking-widest">Strongest Argument</h3>
+                    <p className="text-slate-300 italic">"{scorecard.strongestArgument}"</p>
+                </Card>
+                <Card variant="glass" className="!p-8">
+                    <h3 className="text-xl font-bold mb-4 text-pink-400 uppercase tracking-widest">Improvement Suggestion</h3>
+                    <p className="text-slate-300">{scorecard.improvementSuggestion}</p>
+                </Card>
+            </div>
+
+            <div className="text-center mt-12">
+                <Button onClick={() => setStep('setup')} size="lg">Start New Debate</Button>
+            </div>
+        </Card>
+    );
+
+    return (
+        <div className="space-y-8">
+            {step === 'setup' && renderSetup()}
+            {step === 'debating' && renderDebating()}
+            {step === 'evaluating' && renderEvaluating()}
+            {step === 'results' && renderResults()}
+        </div>
+    );
 };
 
 export default LiveDebatePage;

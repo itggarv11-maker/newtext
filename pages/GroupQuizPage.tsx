@@ -1,10 +1,9 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import Spinner from '../components/common/Spinner';
-import { UsersIcon, ArrowRightIcon, SparklesIcon, ScaleIcon } from '../components/icons';
-import { motion, AnimatePresence } from 'https://esm.sh/framer-motion';
+import { UsersIcon } from '../components/icons';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const GroupQuizPage: React.FC = () => {
   const [state, setState] = useState<'lobby' | 'joining' | 'battle'>('lobby');

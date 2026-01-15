@@ -1,16 +1,13 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'https://esm.sh/react-router-dom';
-import { ClassLevel, Subject, ChatMessage } from '../types';
-import { CLASS_LEVELS, SUBJECTS } from '../constants';
+import { Link } from 'react-router-dom';
+import { ClassLevel, ChatMessage } from '../types';
+import { CLASS_LEVELS } from '../constants';
 import * as geminiService from '../services/geminiService';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import Spinner from '../components/common/Spinner';
-import { MicrophoneIcon } from '../components/icons/MicrophoneIcon';
-import { StopIcon } from '../components/icons/StopIcon';
+import { MicrophoneIcon, StopIcon, ChatBubbleLeftRightIcon } from '../components/icons';
 import { Chat } from '@google/genai';
-import { ChatBubbleLeftRightIcon } from '../components/icons/ChatBubbleLeftRightIcon';
 
 const blobToBase64 = (blob: Blob): Promise<string> => new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -27,22 +24,15 @@ const blobToBase64 = (blob: Blob): Promise<string> => new Promise((resolve, reje
 
 const GeminiLivePage: React.FC = () => {
     const [step, setStep] = useState<'setup' | 'chatting'>('setup');
-    
-    // Setup State
     const [topic, setTopic] = useState('');
     const [classLevel, setClassLevel] = useState<ClassLevel>('Class 10');
-    
-    // Chatting State
     const [chatSession, setChatSession] = useState<Chat | null>(null);
     const [conversation, setConversation] = useState<ChatMessage[]>([]);
-    
-    // Recording State
     const [isRecording, setIsRecording] = useState(false);
     const [isThinking, setIsThinking] = useState(false);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
-    
-    const [isLoading, setIsLoading] = useState(false); // For initial setup
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<React.ReactNode | null>(null);
     const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -57,7 +47,7 @@ const GeminiLivePage: React.FC = () => {
             if (err.message.includes("Insufficient tokens")) {
                 setError(
                     <span>
-                        You're out of tokens! Please <Link to="/premium" className="font-bold underline text-violet-600">upgrade to Premium</Link> for unlimited access.
+                        You're out of tokens! Please <Link to="/premium" className="font-bold underline text-violet-600">upgrade to Premium</Link>.
                     </span>
                 );
             } else {
@@ -129,7 +119,7 @@ const GeminiLivePage: React.FC = () => {
             setIsRecording(true);
         } catch (err) {
             console.error('Failed to get microphone:', err);
-            setError('Microphone permission denied. Please go to your browser settings for this site and allow microphone access.');
+            setError('Microphone permission denied.');
         }
     };
 
@@ -145,12 +135,12 @@ const GeminiLivePage: React.FC = () => {
              <div className="text-center mb-8">
                 <ChatBubbleLeftRightIcon className="w-16 h-16 mx-auto text-violet-600" />
                 <h1 className="text-3xl font-bold text-slate-800 mt-4">Live Doubts Session</h1>
-                <p className="mt-2 text-slate-600">Have a live voice conversation with an AI tutor to clear your doubts instantly.</p>
+                <p className="mt-2 text-slate-600">Have a live voice conversation with an AI tutor.</p>
             </div>
             <form onSubmit={handleStartSession} className="space-y-4">
                  <div>
-                    <label htmlFor="topic" className="block text-sm font-medium text-slate-700">What is the topic of your doubt?</label>
-                    <input type="text" id="topic" value={topic} onChange={e => setTopic(e.target.value)} required placeholder="e.g., 'Quadratic Equations' or 'The Mughal Empire'" className="mt-1 block w-full px-3 py-2 bg-white/60 border border-slate-400 rounded-md shadow-sm focus:outline-none focus:ring-violet-500 focus:border-violet-500 text-slate-900" />
+                    <label htmlFor="topic" className="block text-sm font-medium text-slate-700">Topic of your doubt?</label>
+                    <input type="text" id="topic" value={topic} onChange={e => setTopic(e.target.value)} required placeholder="e.g., 'Quadratic Equations'" className="mt-1 block w-full px-3 py-2 bg-white/60 border border-slate-400 rounded-md shadow-sm text-slate-900" />
                 </div>
                  <div>
                     <label htmlFor="classLevel" className="block text-sm font-medium text-slate-700">Class Level</label>
@@ -171,20 +161,15 @@ const GeminiLivePage: React.FC = () => {
     const renderChatting = () => (
         <Card variant="light" className="max-w-3xl mx-auto">
             <div className="flex flex-col h-[70vh]">
-                {/* Header */}
                 <div className="text-center p-4 border-b border-slate-300">
                     <h2 className="text-xl font-bold text-slate-800">Topic: {topic}</h2>
                      <Button variant="outline" size="sm" onClick={() => setStep('setup')} className="!mt-2 !text-xs">
                         Change Topic
                     </Button>
                 </div>
-
-                {/* Conversation History */}
                 <div ref={chatContainerRef} className="flex-grow p-4 space-y-4 overflow-y-auto">
                     {conversation.map((msg, index) => {
-                        if (msg.role === 'system') {
-                            return <p key={index} className="text-center text-xs text-slate-500 italic py-2">{msg.text}</p>
-                        }
+                        if (msg.role === 'system') return <p key={index} className="text-center text-xs text-slate-500 italic py-2">{msg.text}</p>
                         return (
                             <div key={index} className={`flex items-start gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
                                 {msg.role === 'model' && <span className="flex-shrink-0 w-8 h-8 bg-violet-600 text-white rounded-full flex items-center justify-center font-bold text-sm shadow">AI</span>}
@@ -204,33 +189,16 @@ const GeminiLivePage: React.FC = () => {
                         </div>
                     )}
                 </div>
-
-                {/* Controls */}
                 <div className="p-4 border-t border-slate-300 text-center">
                     {error && <p className="text-red-500 font-semibold text-sm mb-2">{error}</p>}
                     <div className="flex items-center justify-center gap-4">
-                        <Button
-                            onClick={startRecording}
-                            disabled={isRecording || isThinking}
-                            variant="primary"
-                            className="w-40"
-                        >
-                            <MicrophoneIcon className="w-5 h-5"/>
-                            Start Recording
+                        <Button onClick={startRecording} disabled={isRecording || isThinking} variant="primary" className="w-40">
+                            <MicrophoneIcon className="w-5 h-5"/> Start Recording
                         </Button>
-                        <Button
-                            onClick={stopRecording}
-                            disabled={!isRecording || isThinking}
-                            variant="secondary"
-                            className="w-40"
-                        >
-                            <StopIcon className="w-5 h-5"/>
-                            Stop Recording
+                        <Button onClick={stopRecording} disabled={!isRecording || isThinking} variant="secondary" className="w-40">
+                            <StopIcon className="w-5 h-5"/> Stop Recording
                         </Button>
                     </div>
-                    <p className="text-sm text-slate-500 mt-3 font-medium h-5">
-                        {isThinking ? "Tutor is thinking..." : isRecording ? "Recording in progress..." : "Press 'Start Recording' to ask."}
-                    </p>
                 </div>
             </div>
         </Card>

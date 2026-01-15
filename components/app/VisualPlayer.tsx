@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { VisualExplanationScene } from '../../types';
-import Button from '../common/Button';
 import { PlayIcon, PauseIcon, SpeakerWaveIcon, SpeakerXMarkIcon, ArrowsPointingOutIcon } from '../icons';
-import { motion, AnimatePresence } from 'https://esm.sh/framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface VisualPlayerProps {
     scenes: VisualExplanationScene[];
@@ -124,34 +123,28 @@ const VisualPlayer: React.FC<VisualPlayerProps> = ({ scenes, language, jumpToSce
                     className="absolute inset-0 w-full h-full object-cover"
                 />
             </AnimatePresence>
-            
-            {/* HUD Overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/40 p-10 flex flex-col justify-between pointer-events-none">
                 <div className="flex justify-between items-start">
                      <div className="bg-black/40 backdrop-blur-md px-4 py-1 rounded-full text-[10px] font-bold text-cyan-400 tracking-widest uppercase border border-cyan-500/20">
                         Neural Vis: Scene {currentSceneIndex + 1}/{scenes.length}
                      </div>
                 </div>
-
                 <div className="text-center max-w-4xl mx-auto">
                     <motion.p 
                         key={currentSceneIndex}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="text-2xl md:text-4xl font-bold text-white drop-shadow-2xl"
-                        style={{ textShadow: '0 2px 20px rgba(0,0,0,0.8)' }}
                     >
                         {currentScene.narration}
                     </motion.p>
                 </div>
-
                 <div className="space-y-4 pointer-events-auto">
                     <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden cursor-pointer" onClick={(e) => {
                          const rect = e.currentTarget.getBoundingClientRect();
                          const p = (e.clientX - rect.left) / rect.width;
                          setProgress(p * 100);
-                         const idx = Math.min(scenes.length -1, Math.floor(p * scenes.length));
-                         setCurrentSceneIndex(idx);
+                         setCurrentSceneIndex(Math.min(scenes.length -1, Math.floor(p * scenes.length)));
                     }}>
                         <div className="h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 shadow-[0_0_10px_rgba(124,58,237,0.8)]" style={{ width: `${progress}%` }}></div>
                     </div>
@@ -163,14 +156,8 @@ const VisualPlayer: React.FC<VisualPlayerProps> = ({ scenes, language, jumpToSce
                             <button onClick={() => setIsMuted(!isMuted)} className="hover:text-white transition-colors">
                                 {isMuted ? <SpeakerXMarkIcon className="w-6 h-6"/> : <SpeakerWaveIcon className="w-6 h-6"/>}
                             </button>
-                            <div className="hidden md:block w-32 h-1 bg-white/10 rounded-full overflow-hidden relative">
-                                <input type="range" min="0" max="1" step="0.1" value={isMuted ? 0 : volume} onChange={(e) => setVolume(parseFloat(e.target.value))} className="absolute inset-0 opacity-0 cursor-pointer"/>
-                                <div className="h-full bg-white/40" style={{width: `${(isMuted ? 0 : volume) * 100}%`}}></div>
-                            </div>
                         </div>
-                        <button onClick={handleFullscreen} className="hover:text-white transition-colors">
-                            <ArrowsPointingOutIcon className="w-6 h-6"/>
-                        </button>
+                        <button onClick={handleFullscreen} className="hover:text-white transition-colors"><ArrowsPointingOutIcon className="w-6 h-6"/></button>
                     </div>
                 </div>
             </div>

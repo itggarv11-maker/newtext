@@ -1,13 +1,11 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, Link } from 'https://esm.sh/react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { MindMapNode } from '../types';
 import * as geminiService from '../services/geminiService';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import Spinner from '../components/common/Spinner';
-import { BrainCircuitIcon } from '../components/icons/BrainCircuitIcon';
-import { DownloadIcon } from '../components/icons/DownloadIcon';
+import { BrainCircuitIcon, DownloadIcon } from '../components/icons';
 import MindMap from '../components/app/MindMap';
 import { useContent } from '../contexts/ContentContext';
 import { saveWorkToHistory } from '../utils/history';
@@ -21,7 +19,7 @@ const MindMapPage: React.FC = () => {
     const navigate = useNavigate();
 
     const [mindMapData, setMindMapData] = useState<MindMapNode | null>(null);
-    const [isLoading, setIsLoading] = useState(true); // Start loading immediately if content exists
+    const [isLoading, setIsLoading] = useState(true);
     const [isDownloading, setIsDownloading] = useState(false);
     const [error, setError] = useState<React.ReactNode | null>(null);
     const mindMapRef = useRef<MindMapRef>(null);
@@ -60,7 +58,7 @@ const MindMapPage: React.FC = () => {
             };
             generateFromContent();
         } else {
-            setIsLoading(false); // No content, so not loading
+            setIsLoading(false);
         }
     }, [extractedText, classLevel, subject]);
 
@@ -141,7 +139,7 @@ const MindMapPage: React.FC = () => {
         );
     }
 
-    return null; // Should not be reached if logic is correct
+    return null;
 };
 
 export default MindMapPage;

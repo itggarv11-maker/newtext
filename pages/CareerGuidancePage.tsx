@@ -1,12 +1,11 @@
-
 import React, { useState } from 'react';
 import { CareerRoadmap } from '../types';
 import * as geminiService from '../services/geminiService';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import Spinner from '../components/common/Spinner';
-import { RocketLaunchIcon, BookOpenIcon, AcademicCapIcon, ArrowRightIcon, ScaleIcon } from '../components/icons';
-import { motion } from 'https://esm.sh/framer-motion';
+import { RocketLaunchIcon, ArrowRightIcon } from '../components/icons';
+import { motion } from 'framer-motion';
 
 const CareerGuidancePage: React.FC = () => {
     const [step, setStep] = useState(1);

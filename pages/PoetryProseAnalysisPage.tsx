@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'https://esm.sh/react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Card from '../components/common/Card';
-import { PoetryProseIcon } from '../components/icons/PoetryProseIcon';
+import { PoetryProseIcon, BookOpenIcon } from '../components/icons';
 import Button from '../components/common/Button';
 import Spinner from '../components/common/Spinner';
 import { useContent } from '../contexts/ContentContext';
@@ -28,7 +28,7 @@ const PoetryProseAnalysisPage: React.FC = () => {
 
     const handleAnalyze = async () => {
         if (textToAnalyze.trim().length < 50) {
-            setError('Please provide at least 50 characters of text to analyze.');
+            setError('Please provide more text.');
             return;
         }
         setError(null);
@@ -54,79 +54,38 @@ const PoetryProseAnalysisPage: React.FC = () => {
          <Card variant="light" className="max-w-3xl mx-auto">
             <div className="text-center mb-8">
                 <PoetryProseIcon className="w-16 h-16 mx-auto text-violet-600" />
-                <h1 className="text-3xl font-bold text-slate-800 mt-4">Poetry & Prose Analyst</h1>
-                <p className="mt-2 text-slate-600">Get deep analysis of any literary work, including themes, literary devices, and character motivations.</p>
+                <h1 className="text-3xl font-bold text-slate-800 mt-4">Literary Analyst</h1>
             </div>
              <div className="space-y-4">
                 <textarea
                     value={textToAnalyze}
                     onChange={(e) => setTextToAnalyze(e.target.value)}
-                    placeholder="Paste a poem, story, or chapter here..."
-                    className="w-full h-60 p-3 bg-white/80 border border-slate-400 rounded-lg focus:ring-violet-500 focus:border-violet-500 transition"
+                    placeholder="Paste text here..."
+                    className="w-full h-60 p-3 bg-white/80 border border-slate-400 rounded-lg focus:ring-violet-500 outline-none"
                 />
                 {error && <p className="text-red-500 text-center font-semibold">{error}</p>}
-                <div className="text-center">
-                    <Button onClick={handleAnalyze} size="lg" disabled={isLoading}>
-                        {isLoading ? <Spinner colorClass="bg-white" /> : 'Analyze Text'}
-                    </Button>
-                </div>
+                <div className="text-center"><Button onClick={handleAnalyze} size="lg" disabled={isLoading}>Analyze Text</Button></div>
             </div>
         </Card>
     );
 
-    const renderAnalysis = () => (
+    return isLoading ? <div className="flex justify-center py-20"><Spinner className="w-12 h-12" /></div> : analysis ? (
         <div className="max-w-4xl mx-auto space-y-6">
-            <div className="text-center">
-                <h1 className="text-3xl font-bold text-slate-800">Analysis of "{analysis?.title}"</h1>
-                {analysis?.author && <p className="text-lg text-slate-600 mt-1">by {analysis.author}</p>}
-            </div>
-            <Card variant="light">
-                <h2 className="text-xl font-bold text-slate-700 mb-2">Summary</h2>
-                <p className="text-slate-600">{analysis?.overallSummary}</p>
-            </Card>
+            <h1 className="text-3xl font-bold text-center">Analysis: {analysis.title}</h1>
+            <Card variant="light" className="!p-8"><p>{analysis.overallSummary}</p></Card>
             <div className="grid md:grid-cols-2 gap-6">
-                <Card variant="light">
-                    <h2 className="text-xl font-bold text-slate-700 mb-3">Major Themes</h2>
-                    <ul className="list-disc list-inside space-y-1 text-slate-600">
-                        {analysis?.themes.map((item, i) => <li key={i}>{item}</li>)}
-                    </ul>
+                <Card variant="light" className="!p-8">
+                    <h3 className="font-bold mb-4">Themes</h3>
+                    <ul>{analysis.themes.map((t, i) => <li key={i}>&bull; {t}</li>)}</ul>
                 </Card>
-                 <Card variant="light">
-                    <h2 className="text-xl font-bold text-slate-700 mb-3">Literary Devices</h2>
-                    <div className="space-y-2 text-sm">
-                        {analysis?.literaryDevices.map((item, i) => (
-                            <div key={i}>
-                                <p className="font-semibold text-violet-700">{item.device}:</p>
-                                <p className="text-slate-600 italic">"{item.example}"</p>
-                            </div>
-                        ))}
-                    </div>
+                 <Card variant="light" className="!p-8">
+                    <h3 className="font-bold mb-4">Devices</h3>
+                    {analysis.literaryDevices.map((d, i) => <div key={i} className="mb-2"><strong>{d.device}:</strong> {d.example}</div>)}
                 </Card>
             </div>
-            {analysis?.characterAnalysis && analysis.characterAnalysis.length > 0 && (
-                 <Card variant="light">
-                    <h2 className="text-xl font-bold text-slate-700 mb-3">Character Analysis</h2>
-                    <div className="space-y-4">
-                        {analysis.characterAnalysis.map((item, i) => (
-                            <div key={i}>
-                                <h3 className="font-bold text-slate-800">{item.character}</h3>
-                                <p className="text-slate-600 text-sm">{item.analysis}</p>
-                            </div>
-                        ))}
-                    </div>
-                </Card>
-            )}
-            <div className="text-center">
-                <Button onClick={() => setAnalysis(null)} variant="outline">Analyze Another Text</Button>
-            </div>
+            <Button onClick={() => setAnalysis(null)} variant="outline" className="mx-auto block">Analyze New Text</Button>
         </div>
-    );
-    
-    return isLoading ? (
-        <div className="flex justify-center items-center py-10">
-            <Spinner className="w-12 h-12" colorClass="bg-violet-600" />
-        </div>
-    ) : analysis ? renderAnalysis() : renderForm();
+    ) : renderForm();
 };
 
 export default PoetryProseAnalysisPage;

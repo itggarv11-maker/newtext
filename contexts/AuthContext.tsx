@@ -39,7 +39,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [tokens, setTokens] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Premium logic based on token count or separate flag
   const isPremium = tokens !== null && tokens > 500;
 
   useEffect(() => {
@@ -47,7 +46,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setCurrentUser(user);
       if (user) {
         const userRef = doc(db, 'users', user.uid);
-        // Set up real-time listener for profile and tokens
         const unsubDoc = onSnapshot(userRef, (snap) => {
           if (snap.exists()) {
             const data = snap.data();
@@ -55,7 +53,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setUserClass(data.classLevel || "Class 10");
             setTokens(data.tokens ?? 100);
           } else {
-            // New user, initialize their doc if first login
             setTokens(100);
           }
           setLoading(false);
@@ -93,7 +90,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const loginWithGoogle = async () => {
       const res = await signInWithPopup(auth, googleProvider);
       const userRef = doc(db, 'users', res.user.uid);
-      // Ensure profile exists for Google users
       await setDoc(userRef, {
           name: res.user.displayName,
           email: res.user.email,
